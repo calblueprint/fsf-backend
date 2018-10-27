@@ -5,3 +5,9 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+
+NUM_MESSAGES = 5
+
+0.upto(NUM_MESSAGES) do |i|
+  Message.create content: Faker::HarryPotter.quote
+end

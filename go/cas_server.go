@@ -4,13 +4,23 @@ import (
     "log"
     "flag"
     "net/http"
-    //"net/url"
+    "net/url"
     "encoding/json"
     "encoding/xml"
+    "math/rand"
+    "fmt"
 )
 
 var siteKey string
 var adminApiKey string
+
+func getRandomKey() string {
+    bytes := make([]byte, 32)
+    for i := 0; i < 32; i++ {
+        bytes[i] = byte(65 + rand.Intn(25))  //A=65 and Z = 65+25
+    }
+    return string(bytes)
+}
 
 func writeError(w http.ResponseWriter, msg string) {
     http.Error(w, msg, 500)
@@ -72,42 +82,123 @@ func validateToken(token string) (bool, string, error) {
 }
 
 func getAPIKey(id string) (string, error) {
-    // TODO: implement secured version
-    // current version returns an admin key
-    return adminApiKey, nil
+    /** Because of the design of CiviCRM, API Key is only shown when we do an update
+        i.e. a create with contact_id specified.
 
-    /* WIP */
-    /*
+        We first query for the contact id that matches this identity, then run an
+        update to retrieve the API key.
+
+        If current API key is not set, we set the API key and return to the user.
+    */
     c := &http.Client{}
 
     requestUrl := "https://crmserver3d.fsf.org/sites/all/modules/civicrm/extern/rest.php"
 
-    var query struct {
-        sequential int `json:"sequential"`
-        email string `json:"email"`
+    // Query for contact id
+    var idQuery struct {
+        Sequential int `json:"sequential"`
+        Return string `json:"return"`
+        Email string `json:"email"`
     }
-    query.sequential = 1
-    query.email = id
+    idQuery.Sequential = 1
+    idQuery.Email = id
+    idQuery.Return = "id"
 
-    queryJson, err := json.Marshal(query)
+    idQueryJson, err := json.Marshal(idQuery)
     if err != nil {
         log.Fatal("Error constructing query json for civicrm")
         return "", err
     }
 
     v := url.Values{}
-    v.Add("entity", "Contct")
+    v.Add("entity", "Contact")
     v.Add("action", "get")
     v.Add("api_key", adminApiKey)
     v.Add("key", siteKey)
-    v.Add("json", string(queryJson))
+    v.Add("json", string(idQueryJson))
 
     resp, err := c.PostForm(requestUrl, v)
     if err != nil {
         return "", err
     }
-    */
+    if resp.StatusCode >= 400 {
+        return "", fmt.Errorf("Bad status code: %v", string(resp.StatusCode))
+    }
 
+    var idQueryResp struct {
+        Error int `json:"is_error"`
+        Values []struct {
+            Id string `json:"id"`
+        } `json:"values"`
+    }
+
+    dec := json.NewDecoder(resp.Body)
+    err = dec.Decode(&idQueryResp)
+    if err != nil || len(idQueryResp.Values) != 1 || idQueryResp.Error != 0 {
+        return "", fmt.Errorf("Bad response")
+    }
+
+    resp.Body.Close()
+
+    contactId := idQueryResp.Values[0].Id
+    log.Println("Contact id is:" + contactId)
+
+    // Use an update query to check for API key
+    updateQueryJson := `{"id":"` + contactId + `"}`
+
+    v.Set("action", "create")
+    v.Set("json", updateQueryJson)
+
+    resp, err = c.PostForm(requestUrl, v)
+    if err != nil {
+        return "", err
+    }
+    if resp.StatusCode >= 400 {
+        return "", fmt.Errorf("Bad status code: %v", string(resp.StatusCode))
+    }
+
+    var updateQueryResp struct {
+        Error int `json:"is_error"`
+        Values map[string] struct {
+            ApiKey string `json:"api_key"`
+        } `json:"values"`
+    }
+
+    dec = json.NewDecoder(resp.Body)
+    err = dec.Decode(&updateQueryResp)
+    if err != nil || updateQueryResp.Error != 0 {
+        return "", fmt.Errorf("Bad response")
+    }
+
+    resp.Body.Close()
+
+    if updateQueryResp.Values[contactId].ApiKey != "" {
+        return updateQueryResp.Values[contactId].ApiKey, nil
+    }
+
+    log.Println("Found API key:" + updateQueryResp.Values[contactId].ApiKey)
+    // api key is not set, need to update API key and return
+    newApiKey := getRandomKey()
+
+    updateQueryJson = `{"id":"` + idQueryResp.Values[0].Id +
+        `", "api_key": "` + newApiKey + `"}`
+    v.Set("json", updateQueryJson)
+    resp, err = c.PostForm(requestUrl, v)
+    if err != nil {
+        return "", err
+    }
+    if resp.StatusCode >= 400 {
+        return "", fmt.Errorf("Bad status code: %v", string(resp.StatusCode))
+    }
+
+    dec = json.NewDecoder(resp.Body)
+    err = dec.Decode(&updateQueryResp)
+    if err != nil || updateQueryResp.Error != 0 {
+        return "", fmt.Errorf("Bad response")
+    }
+    log.Println("Set API key:" + updateQueryResp.Values[contactId].ApiKey)
+
+    return newApiKey, nil
 }
 
 
@@ -146,6 +237,7 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
     // authentication success
     apiKey, err := getAPIKey(id)
     if err != nil {
+        log.Println(err.Error())
         writeError(w, "Server error when interacting with CiviCRM")
         return
     }

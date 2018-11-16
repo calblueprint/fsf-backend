@@ -9,8 +9,7 @@ import (
     "fmt"
 )
 
-var siteKey string
-var adminApiKey string
+var siteKey, adminApiKey string
 
 // return
 //   bool: whether auth is successful

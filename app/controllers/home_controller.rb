@@ -1,7 +1,7 @@
 class HomeController < ApplicationController
 
    def home
-      render plain: "Hello"
+      render plain: "Hello World?"
    end
 
 end

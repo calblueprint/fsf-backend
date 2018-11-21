@@ -33,6 +33,7 @@ ActiveRecord::Schema.define(version: 2018_12_08_080150) do
     t.string "link"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "title"
   end
 
 end

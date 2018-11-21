@@ -11,5 +11,6 @@ class MessagesController < ApplicationController
 
   def create
     Message.create title: "Brand new notification", content: "Notification created by #{params[:device_id]} at #{DateTime.now}"
+    render plain: "Successfully created notification"
   end
 end

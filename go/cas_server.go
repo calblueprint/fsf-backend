@@ -92,23 +92,23 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// authentication success
-	apiKey, err := getAPIKey(id)
+	APIKey, err := getAPIKey(id)
 	if err != nil {
 		log.Println(err.Error())
 		writeError(w, "Server error when interacting with CiviCRM")
 		return
 	}
 
-	// write apiKey back in response
+	// write APIKey back in response
 	enc := json.NewEncoder(w)
 
 	var key struct {
 		Key string `json:"key"`
-		Id  string `json:"id"`
+		ID  string `json:"id"`
 	}
 
-	key.Key = apiKey
-	key.Id = id
+	key.Key = APIKey
+	key.ID = id
 
 	enc.Encode(key)
 }
@@ -117,14 +117,14 @@ func main() {
 	// CAS mobile login server
 	addrPtr := flag.String("addr", "0.0.0.0:8080", "address to listen")
 	siteKeyPtr := flag.String("sitekey", "", "provide site key of CiviCRM")
-	adminApiKeyPtr := flag.String("adminkey", "", "provide the admin API key for CiviCRM")
+	adminAPIKeyPtr := flag.String("adminkey", "", "provide the admin API key for CiviCRM")
 	tcuserPtr := flag.String("tcuser", "", "username for Trust Commerce")
 	tcpasswdPtr := flag.String("tcpasswd", "", "password for Trust Commerce")
 
 	flag.Parse()
 
 	siteKey = *siteKeyPtr
-	adminApiKey = *adminApiKeyPtr
+	adminAPIKey = *adminAPIKeyPtr
 	tcUsername = *tcuserPtr
 	tcPassword = *tcpasswdPtr
 

@@ -7,6 +7,14 @@ import (
 	"net/http"
 )
 
+// accepts JSON POST request with the following body:
+//   {"st": "service token"}
+//
+// returns either a HTTP error or a json response like:
+//   {"key": "api key for CiviCRM", "id": "an id to talk to CiviCRM"}
+//
+// at this time, the id to talk to CiviCRM is the users' email address
+// TODO(tonyyanga): change the id to contact id in CiviCRM
 func handleLogin(w http.ResponseWriter, req *http.Request) {
 	/** requires a POST request with json payload with the following format
 	 *

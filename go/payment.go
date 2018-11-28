@@ -30,17 +30,19 @@ func NewTransactionMgr(custId, password string) *TransactionMgr {
 }
 
 // return transaction status struct, err
-func (mgr *TransactionMgr) createSale(name, ccNumber, expiry, amount string) (*TCSaleResp, error) {
+func (mgr *TransactionMgr) createSaleFromCC(name, ccNumber, expiry, amount string) (*TCSaleResp, error) {
 	// malloc a C array of char*
-	cKeyArray := C.malloc(C.size_t(C.int(7)) * C.size_t(unsafe.Sizeof(uintptr(0))))
-	cValueArray := C.malloc(C.size_t(C.int(7)) * C.size_t(unsafe.Sizeof(uintptr(0))))
+	mapSize := 7
+
+	cKeyArray := C.malloc(C.size_t(C.int(mapSize)) * C.size_t(unsafe.Sizeof(uintptr(0))))
+	cValueArray := C.malloc(C.size_t(C.int(mapSize)) * C.size_t(unsafe.Sizeof(uintptr(0))))
 
 	defer C.free(cKeyArray)
 	defer C.free(cValueArray)
 
 	// convert C array to go slice for addressing
-	keys := cArrayToSlice(cKeyArray, 7)
-	values := cArrayToSlice(cValueArray, 7)
+	keys := cArrayToSlice(cKeyArray, mapSize)
+	values := cArrayToSlice(cValueArray, mapSize)
 
 	// set parameters
 	keys[0] = C.CString("custid")
@@ -64,7 +66,7 @@ func (mgr *TransactionMgr) createSale(name, ccNumber, expiry, amount string) (*T
 	keys[6] = C.CString("amount")
 	values[6] = C.CString(amount)
 
-	for i := 0; i < 7; i++ {
+	for i := 0; i < mapSize; i++ {
 		defer C.free(unsafe.Pointer(keys[i]))
 		defer C.free(unsafe.Pointer(values[i]))
 	}
@@ -73,12 +75,73 @@ func (mgr *TransactionMgr) createSale(name, ccNumber, expiry, amount string) (*T
 	buf := C.malloc(C.sizeof_char * 1024)
 	defer C.free(buf)
 
-	C.TCRequest((**C.char)(cKeyArray), (**C.char)(cValueArray), C.size_t(C.int(7)),
-		(*C.char)(buf), C.size_t(C.int(1024)))
+	return mgr.createSaleHelper((**C.char)(cKeyArray), (**C.char)(cValueArray), mapSize,
+		(*C.char)(buf), 1024)
+}
 
-	resp := C.GoString((*C.char)(buf))
+// return transaction status struct, err
+func (mgr *TransactionMgr) createSaleFromBillingID(billingID, amount string) (*TCSaleResp, error) {
+	// malloc a C array of char*
+	mapSize := 5
+
+	cKeyArray := C.malloc(C.size_t(C.int(mapSize)) * C.size_t(unsafe.Sizeof(uintptr(0))))
+	cValueArray := C.malloc(C.size_t(C.int(mapSize)) * C.size_t(unsafe.Sizeof(uintptr(0))))
+
+	defer C.free(cKeyArray)
+	defer C.free(cValueArray)
+
+	// convert C array to go slice for addressing
+	keys := cArrayToSlice(cKeyArray, 7)
+	values := cArrayToSlice(cValueArray, 7)
+
+	// set parameters
+	keys[0] = C.CString("custid")
+	values[0] = C.CString(mgr.CustId)
+
+	keys[1] = C.CString("password")
+	values[1] = C.CString(mgr.Password)
+
+	keys[2] = C.CString("action")
+	values[2] = C.CString("sale")
+
+	keys[3] = C.CString("billingid")
+	values[3] = C.CString(billingID)
+
+	keys[4] = C.CString("amount")
+	values[4] = C.CString(amount)
+
+	for i := 0; i < mapSize; i++ {
+		defer C.free(unsafe.Pointer(keys[i]))
+		defer C.free(unsafe.Pointer(values[i]))
+	}
+
+	// allocate buffer for return value
+	buf := C.malloc(C.sizeof_char * 1024)
+	defer C.free(buf)
+
+	return mgr.createSaleHelper((**C.char)(cKeyArray), (**C.char)(cValueArray), mapSize,
+		(*C.char)(buf), 1024)
+}
+
+// return raw response string, parsed map, and err
+func (mgr *TransactionMgr) TCTransactionHelper(cKeyArray **C.char, cValueArray **C.char, mapSize int, dest *C.char, bufSize int) (string, map[string]string, error) {
+
+	C.TCRequest(cKeyArray, cValueArray, C.size_t(C.int(mapSize)), dest, C.size_t(C.int(bufSize)))
+
+	resp := C.GoString((*C.char)(dest))
 
 	respMap, err := processTCResponse(resp)
+	if err != nil {
+		return "", nil, err
+	}
+
+	return resp, respMap, nil
+}
+
+// return transaction status struct, err
+func (mgr *TransactionMgr) createSaleHelper(cKeyArray **C.char, cValueArray **C.char, mapSize int, dest *C.char, bufSize int) (*TCSaleResp, error) {
+	resp, respMap, err := mgr.TCTransactionHelper(cKeyArray, cValueArray, mapSize, dest, bufSize)
+
 	if err != nil {
 		return nil, err
 	}
@@ -105,15 +168,17 @@ func (mgr *TransactionMgr) createSale(name, ccNumber, expiry, amount string) (*T
 // return billing id, err
 func (mgr *TransactionMgr) createBillingId(name, ccNumber, expiry, zip string) (string, error) {
 	// malloc a C array of char*
-	cKeyArray := C.malloc(C.size_t(C.int(7)) * C.size_t(unsafe.Sizeof(uintptr(0))))
-	cValueArray := C.malloc(C.size_t(C.int(7)) * C.size_t(unsafe.Sizeof(uintptr(0))))
+	mapSize := 7
+
+	cKeyArray := C.malloc(C.size_t(C.int(mapSize)) * C.size_t(unsafe.Sizeof(uintptr(0))))
+	cValueArray := C.malloc(C.size_t(C.int(mapSize)) * C.size_t(unsafe.Sizeof(uintptr(0))))
 
 	defer C.free(cKeyArray)
 	defer C.free(cValueArray)
 
 	// convert C array to go slice for addressing
-	keys := cArrayToSlice(cKeyArray, 7)
-	values := cArrayToSlice(cValueArray, 7)
+	keys := cArrayToSlice(cKeyArray, mapSize)
+	values := cArrayToSlice(cValueArray, mapSize)
 
 	// set parameters
 	keys[0] = C.CString("custid")
@@ -137,7 +202,7 @@ func (mgr *TransactionMgr) createBillingId(name, ccNumber, expiry, zip string) (
 	keys[6] = C.CString("zip")
 	values[6] = C.CString(zip)
 
-	for i := 0; i < 7; i++ {
+	for i := 0; i < mapSize; i++ {
 		defer C.free(unsafe.Pointer(keys[i]))
 		defer C.free(unsafe.Pointer(values[i]))
 	}
@@ -146,12 +211,8 @@ func (mgr *TransactionMgr) createBillingId(name, ccNumber, expiry, zip string) (
 	buf := C.malloc(C.sizeof_char * 1024)
 	defer C.free(buf)
 
-	C.TCRequest((**C.char)(cKeyArray), (**C.char)(cValueArray), C.size_t(C.int(7)),
-		(*C.char)(buf), C.size_t(C.int(1024)))
+	resp, respMap, err := mgr.TCTransactionHelper((**C.char)(cKeyArray), (**C.char)(cValueArray), mapSize, (*C.char)(buf), 1024)
 
-	resp := C.GoString((*C.char)(buf))
-
-	respMap, err := processTCResponse(resp)
 	if err != nil {
 		return "", err
 	}

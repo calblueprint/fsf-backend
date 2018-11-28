@@ -9,7 +9,58 @@ import (
 
 var tcUsername, tcPassword string
 
-// handles a request that registers credit card info
+// handles a request for a single payment
+// accepts a body like the following
+// requires a POST request with json payload with the following format
+// {
+//  "name": "John Smith",
+//  "cc": "4111111111111111",
+//  "exp": "0404",
+//  "amount": "110"
+// }
+//
+// when success, returns a json like the following:
+// {
+//   "transid": "a billing id from TrustCommerce",
+//   "status": "status of transaction, could be approved, declined, baddata or error"
+//   "authcode": "auth code for the transaction"
+// }
+func handlePayment(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "POST" {
+		writeError(w, "Only POST requests are supported")
+		return
+	}
+
+	dec := json.NewDecoder(req.Body)
+	var ccInfo struct {
+		Name   string `json:"name"`
+		Cc     string `json:"cc"`
+		Exp    string `json:"exp"`
+		Amount string `json:"amount"`
+	}
+
+	if err := dec.Decode(&ccInfo); err != nil {
+		writeError(w, "Cannot parse request body correctly")
+		return
+	}
+
+	mgr := NewTransactionMgr(tcUsername, tcPassword)
+	saleResp, err := mgr.createSale(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
+
+	if err != nil {
+		log.Println(err.Error())
+		writeError(w, "Payment failed")
+		return
+	}
+
+	// write billing id back in response
+	enc := json.NewEncoder(w)
+
+	// see TCSaleResp struct for json response struct
+	enc.Encode(saleResp)
+}
+
+// handles a request to store credit card info for repeating payments
 // accepts a body like the following
 // requires a POST request with json payload with the following format
 // {
@@ -21,7 +72,6 @@ var tcUsername, tcPassword string
 //
 // when success, returns a json like the following:
 // {"billingid": "a billing id from TrustCommerce"}
-
 func handleRegisterCC(w http.ResponseWriter, req *http.Request) {
 	/** requires a POST request with json payload with the following format
 	  *
@@ -55,7 +105,7 @@ func handleRegisterCC(w http.ResponseWriter, req *http.Request) {
 
 	if err != nil {
 		log.Println(err.Error())
-		writeError(w, "Payment failed")
+		writeError(w, "Card registration failed")
 		return
 	}
 
@@ -156,5 +206,6 @@ func main() {
 
 	http.HandleFunc("/login", handleLogin)
 	http.HandleFunc("/payment/register", handleRegisterCC)
+	http.HandleFunc("/payment/pay", handlePayment)
 	log.Fatal(http.ListenAndServe(*addrPtr, nil))
 }

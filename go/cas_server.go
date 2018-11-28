@@ -10,6 +10,18 @@ import (
 var tcUsername, tcPassword string
 
 // handles a request that registers credit card info
+// accepts a body like the following
+// requires a POST request with json payload with the following format
+// {
+//  "name": "John Smith",
+//  "cc": "4111111111111111",
+//  "exp": "0404",
+//  "zip": "90000"
+// }
+//
+// when success, returns a json like the following:
+// {"billingid": "a billing id from TrustCommerce"}
+
 func handleRegisterCC(w http.ResponseWriter, req *http.Request) {
 	/** requires a POST request with json payload with the following format
 	  *
@@ -59,6 +71,7 @@ func handleRegisterCC(w http.ResponseWriter, req *http.Request) {
 	enc.Encode(resp)
 }
 
+// handles a login request
 // accepts JSON POST request with the following body:
 //   {"st": "service token"}
 //

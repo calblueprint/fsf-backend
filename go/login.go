@@ -99,8 +99,9 @@ func queryCiviCRM(v url.Values, dest interface{}) error {
 // @param id: id string from CAS (currently user's email)
 // @return:
 //   a string that is the API key
+//   a string that is the contact id in CiviCRM
 //   an error if any error occurs
-func getAPIKey(id string) (string, error) {
+func getAPIKey(id string) (string, string, error) {
 	/** Because of the design of CiviCRM, API Key is only shown when we do an update
 	  i.e. a create with contact_id specified.
 
@@ -123,7 +124,7 @@ func getAPIKey(id string) (string, error) {
 	idQueryJson, err := json.Marshal(idQuery)
 	if err != nil {
 		log.Fatal("Error constructing query json for civicrm")
-		return "", err
+		return "", "", err
 	}
 
 	v := &url.Values{}
@@ -141,7 +142,7 @@ func getAPIKey(id string) (string, error) {
 	}
 
 	if err = queryCiviCRM(*v, &idQueryResp); err != nil || idQueryResp.Error != 0 || len(idQueryResp.Values) != 1 {
-		return "", fmt.Errorf("Bad response")
+		return "", "", fmt.Errorf("Bad response")
 	}
 
 	contactId := idQueryResp.Values[0].Id
@@ -161,11 +162,11 @@ func getAPIKey(id string) (string, error) {
 	}
 
 	if err = queryCiviCRM(*v, &updateQueryResp); err != nil || updateQueryResp.Error != 0 {
-		return "", fmt.Errorf("Bad response")
+		return "", "", fmt.Errorf("Bad response")
 	}
 
 	if updateQueryResp.Values[contactId].APIKey != "" {
-		return updateQueryResp.Values[contactId].APIKey, nil
+		return updateQueryResp.Values[contactId].APIKey, contactId, nil
 	}
 
 	log.Println("Found API key:" + updateQueryResp.Values[contactId].APIKey)
@@ -176,10 +177,10 @@ func getAPIKey(id string) (string, error) {
 	v.Set("json", updateQueryJson)
 
 	if err = queryCiviCRM(*v, &updateQueryResp); err != nil || updateQueryResp.Error != 0 {
-		return "", fmt.Errorf("Bad response")
+		return "", "", fmt.Errorf("Bad response")
 	}
 
 	log.Println("Set API key:" + updateQueryResp.Values[contactId].APIKey)
 
-	return newAPIKey, nil
+	return newAPIKey, contactId, nil
 }

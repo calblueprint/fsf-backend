@@ -76,10 +76,13 @@ func handleRegisterCC(w http.ResponseWriter, req *http.Request) {
 //   {"st": "service token"}
 //
 // returns either a HTTP error or a json response like:
-//   {"key": "api key for CiviCRM", "id": "an id to talk to CiviCRM"}
+//   {
+//     "key": "api key for CiviCRM",
+//     "id": "contact id for CiviCRM",
+//     "email": "email address"
+//   }
 //
 // at this time, the id to talk to CiviCRM is the users' email address
-// TODO(tonyyanga): change the id to contact id in CiviCRM
 func handleLogin(w http.ResponseWriter, req *http.Request) {
 	/** requires a POST request with json payload with the following format
 	 *
@@ -102,7 +105,7 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 
 	serviceToken := t.ST // service token we get from the request
 
-	result, id, err := validateToken(serviceToken)
+	result, id, err := validateToken(serviceToken) // id here is the email from CAS
 
 	if err != nil {
 		writeError(w, "Server error when validating token")
@@ -113,7 +116,7 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// authentication success
-	APIKey, err := getAPIKey(id)
+	APIKey, contactId, err := getAPIKey(id)
 	if err != nil {
 		log.Println(err.Error())
 		writeError(w, "Server error when interacting with CiviCRM")
@@ -124,12 +127,14 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 	enc := json.NewEncoder(w)
 
 	var key struct {
-		Key string `json:"key"`
-		ID  string `json:"id"`
+		Key   string `json:"key"`
+		ID    string `json:"id"` // contact id from CiviCRM
+		Email string `json:"email"`
 	}
 
 	key.Key = APIKey
-	key.ID = id
+	key.ID = contactId
+	key.Email = id
 
 	enc.Encode(key)
 }

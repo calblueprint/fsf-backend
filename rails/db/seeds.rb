@@ -6,22 +6,21 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
-NUM_MESSAGES = 5
-NUM_ARTICLES = 15
+#NUM_MESSAGES = 5
+NUM_ARTICLES = 5 
 
 
 # 0.upto(NUM_MESSAGES) do |i|
 #   Message.create content: Faker::HarryPotter.quote
 # end
 
+#Creates 5 Test Articles
 0.upto(NUM_ARTICLES) do |i|
-  Article.create({
-      headline: Faker::Book.title,
-      lead: Faker::Lorem.sentence(9),
+    Article.create({
+      title: "#{Faker::Kpop.ii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups}",
+      link: Faker::Internet.url("fsf.org"),
       pub_date: Faker::Date.backward(29),
-      news_alert: Faker::Boolean.boolean(0.2),
-      category: "news",
-      author: Faker::Book.author,
+      news_alert: :false,
       content: Faker::Lorem.paragraphs(15)
-    }) 
-end
+    })
+  end

@@ -9,7 +9,6 @@
 #NUM_MESSAGES = 5
 NUM_ARTICLES = 5 
 
-
 # 0.upto(NUM_MESSAGES) do |i|
 #   Message.create content: Faker::HarryPotter.quote
 # end

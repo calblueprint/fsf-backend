@@ -19,8 +19,8 @@ var tcUsername, tcPassword string
 //
 // when success, returns a json like the following:
 // {
-//   "transid": "a billing id from TrustCommerce",
-//   "status": "status of transaction, could be approved, declined, baddata or error"
+//   "transid": "a transaction id from TrustCommerce",
+//   "status": "status of transaction { approved, declined, baddata, error }"
 //   "authcode": "auth code for the transaction"
 // }
 func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
@@ -68,8 +68,8 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 //
 // when success, returns a json like the following:
 // {
-//   "transid": "a billing id from TrustCommerce",
-//   "status": "status of transaction, could be approved, declined, baddata or error"
+//   "transid": "a transaction id from TrustCommerce",
+//   "status": "status of transaction { approved, declined, baddata, error }"
 //   "authcode": "auth code for the transaction"
 // }
 func handlePayment(w http.ResponseWriter, req *http.Request) {

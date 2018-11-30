@@ -3,6 +3,16 @@
 # It's helpful, but not entirely necessary to understand cron before proceeding.
 # http://en.wikipedia.org/wiki/Cron
 
+
+
+# EXAMPLE TO USE FOR TEST
+### For Development Purposes
+# every 1.minute do # 1.minute 1.day 1.week 1.month 1.year is also supported
+#     command("/bin/bash -l -c 'cd /your/path/goes/here/yup/fsf-rails/rails && RAILS_ENV=development bundle exec rake db:updateNews --silent'")
+# end
+
+
+
 ####################### FSF NOTES
 # the following command
 # whenever --update-crontab
@@ -13,13 +23,6 @@
 every 1.day do # 1.minute 1.day 1.week 1.month 1.year is also supported
     rake "db:updateNews"
 end
-
-# Example
-### For Development Purposes
-# every 1.minute do # 1.minute 1.day 1.week 1.month 1.year is also supported
-#     command("/bin/bash -l -c 'cd /Users/franco/Desktop/sandbox/fsf/fsf-rails/rails && RAILS_ENV=development bundle exec rake db:updateNews --silent'")
-# end
-
 
 #set :output, "/path/to/my/cron_log.log"
 

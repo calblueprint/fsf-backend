@@ -1,3 +1,7 @@
+#This rake file updates the Article table with the most up to date FSF News Articles
+#it accomplishes this by using Feedjira to parse the xml content from FSF RSS newsfeed
+#it then iterates through each item from the FSF RSS feed and checks if it is in the table
+#if its not in the table, the FSF News Article is added to Article table
 namespace :db do
   desc "Updates FSF News Table by querying FSF News RSS Feed"
   task updateNews: :environment do

@@ -16,13 +16,11 @@ ActiveRecord::Schema.define(version: 2018_12_02_005009) do
   enable_extension "plpgsql"
 
   create_table "articles", force: :cascade do |t|
-    t.string "headline"
-    t.text "lead"
+    t.string "title"
+    t.string "link"
     t.datetime "pub_date"
-    t.boolean "news_alert"
-    t.string "category"
-    t.string "author"
     t.text "content"
+    t.boolean "news_alert", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "title"

@@ -1,3 +1,4 @@
+#This module is the API for news Articles
 module Api
     module V1
         class ArticlesController < ApplicationController
@@ -23,13 +24,11 @@ module Api
             private
             def article_params
                 params.permit(
-                    :headline,
-                    :lead,
+                    :title,
+                    :link,
                     :pub_date,
+                    :content,
                     :news_alert,
-                    :category,
-                    :author,
-                    :content
                 )
             end
         end

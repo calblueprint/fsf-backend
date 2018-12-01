@@ -11,7 +11,11 @@ class MessagesController < ApplicationController
   end
 
   def create
-    Message.create title: params['title'], content: params['content']
+    link = params['link']
+    if link.nil?
+      link = 'fsf://fsf'
+    end
+    Message.create title: params['title'], content: params['content'], link: link
     render plain: "Successfully created notification"
   end
 end

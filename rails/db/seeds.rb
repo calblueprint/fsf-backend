@@ -8,6 +8,8 @@
 
 NUM_MESSAGES = 5
 
-0.upto(NUM_MESSAGES) do |i|
-  Message.create content: Faker::HarryPotter.quote
-end
+# 0.upto(NUM_MESSAGES) do |i|
+#   Message.create content: Faker::HarryPotter.quote
+# end
+
+Petition.create title: "Please Act Now!", description: "Your digital rights are dying", link: "https://my.fsf.org/civicrm/petition/sign?sid=8&reset=1"

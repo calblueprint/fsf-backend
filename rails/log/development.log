@@ -243,3 +243,294 @@ Processing by Rails::WelcomeController#index as */*
 Completed 200 OK in 18ms (Views: 10.0ms | ActiveRecord: 0.0ms)
 
 
+  [1m[35m (0.4ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6460049663633094165)[0m
+  ↳ bin/rails:9
+  [1m[35m (3.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  ↳ bin/rails:9
+Migrating to CreatePetitions (20181202005009)
+  [1m[35m (0.2ms)[0m  [1m[35mBEGIN[0m
+  ↳ bin/rails:9
+  [1m[35m (29.9ms)[0m  [1m[35mCREATE TABLE "petitions" ("id" bigserial primary key, "title" character varying, "description" character varying, "link" character varying, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL)[0m
+  ↳ db/migrate/20181202005009_create_petitions.rb:3
+  [1m[36mActiveRecord::SchemaMigration Create (0.5ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ($1) RETURNING "version"[0m  [["version", "20181202005009"]]
+  ↳ bin/rails:9
+  [1m[35m (1.3ms)[0m  [1m[35mCOMMIT[0m
+  ↳ bin/rails:9
+  [1m[36mActiveRecord::InternalMetadata Load (2.0ms)[0m  [1m[34mSELECT  "ar_internal_metadata".* FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 LIMIT $2[0m  [["key", "environment"], ["LIMIT", 1]]
+  ↳ bin/rails:9
+  [1m[35m (1.1ms)[0m  [1m[35mBEGIN[0m
+  ↳ bin/rails:9
+  [1m[35m (1.3ms)[0m  [1m[35mCOMMIT[0m
+  ↳ bin/rails:9
+  [1m[35m (0.4ms)[0m  [1m[34mSELECT pg_advisory_unlock(6460049663633094165)[0m
+  ↳ bin/rails:9
+  [1m[35m (0.5ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  ↳ bin/rails:9
+  [1m[35m (0.5ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  ↳ bin/rails:9
+  [1m[35m (0.6ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  ↳ bin/rails:9
+  [1m[35m (0.1ms)[0m  [1m[35mBEGIN[0m
+  ↳ db/seeds.rb:15
+  [1m[36mPetition Create (0.7ms)[0m  [1m[32mINSERT INTO "petitions" ("title", "description", "link", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5) RETURNING "id"[0m  [["title", "Please Act Now!"], ["description", "Your digital rights are dying"], ["link", "https://my.fsf.org/civicrm/petition/sign?sid=8&reset=1"], ["created_at", "2018-12-02 00:52:13.655884"], ["updated_at", "2018-12-02 00:52:13.655884"]]
+  ↳ db/seeds.rb:15
+  [1m[35m (1.4ms)[0m  [1m[35mCOMMIT[0m
+  ↳ db/seeds.rb:15
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 16:57:21 -0800
+  [1m[35m (3.4ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  ↳ /Users/aivant/.rvm/gems/ruby-2.5.1/gems/activerecord-5.2.1/lib/active_record/log_subscriber.rb:98
+  
+ActionController::RoutingError (No route matches [GET] "/petitions"):
+  
+actionpack (5.2.1) lib/action_dispatch/middleware/debug_exceptions.rb:65:in `call'
+web-console (3.7.0) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.7.0) lib/web_console/middleware.rb:30:in `block in call'
+web-console (3.7.0) lib/web_console/middleware.rb:20:in `catch'
+web-console (3.7.0) lib/web_console/middleware.rb:20:in `call'
+actionpack (5.2.1) lib/action_dispatch/middleware/show_exceptions.rb:33:in `call'
+railties (5.2.1) lib/rails/rack/logger.rb:38:in `call_app'
+railties (5.2.1) lib/rails/rack/logger.rb:26:in `block in call'
+activesupport (5.2.1) lib/active_support/tagged_logging.rb:71:in `block in tagged'
+activesupport (5.2.1) lib/active_support/tagged_logging.rb:28:in `tagged'
+activesupport (5.2.1) lib/active_support/tagged_logging.rb:71:in `tagged'
+railties (5.2.1) lib/rails/rack/logger.rb:26:in `call'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:13:in `call'
+actionpack (5.2.1) lib/action_dispatch/middleware/remote_ip.rb:81:in `call'
+actionpack (5.2.1) lib/action_dispatch/middleware/request_id.rb:27:in `call'
+rack (2.0.5) lib/rack/method_override.rb:22:in `call'
+rack (2.0.5) lib/rack/runtime.rb:22:in `call'
+activesupport (5.2.1) lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'
+actionpack (5.2.1) lib/action_dispatch/middleware/executor.rb:14:in `call'
+actionpack (5.2.1) lib/action_dispatch/middleware/static.rb:127:in `call'
+rack (2.0.5) lib/rack/sendfile.rb:111:in `call'
+railties (5.2.1) lib/rails/engine.rb:524:in `call'
+puma (3.12.0) lib/puma/configuration.rb:225:in `call'
+puma (3.12.0) lib/puma/server.rb:658:in `handle_request'
+puma (3.12.0) lib/puma/server.rb:472:in `process_client'
+puma (3.12.0) lib/puma/server.rb:332:in `block in run'
+puma (3.12.0) lib/puma/thread_pool.rb:133:in `block in spawn_thread'
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 16:57:24 -0800
+  
+ActionController::RoutingError (No route matches [GET] "/petitions"):
+  
+actionpack (5.2.1) lib/action_dispatch/middleware/debug_exceptions.rb:65:in `call'
+web-console (3.7.0) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.7.0) lib/web_console/middleware.rb:30:in `block in call'
+web-console (3.7.0) lib/web_console/middleware.rb:20:in `catch'
+web-console (3.7.0) lib/web_console/middleware.rb:20:in `call'
+actionpack (5.2.1) lib/action_dispatch/middleware/show_exceptions.rb:33:in `call'
+railties (5.2.1) lib/rails/rack/logger.rb:38:in `call_app'
+railties (5.2.1) lib/rails/rack/logger.rb:26:in `block in call'
+activesupport (5.2.1) lib/active_support/tagged_logging.rb:71:in `block in tagged'
+activesupport (5.2.1) lib/active_support/tagged_logging.rb:28:in `tagged'
+activesupport (5.2.1) lib/active_support/tagged_logging.rb:71:in `tagged'
+railties (5.2.1) lib/rails/rack/logger.rb:26:in `call'
+sprockets-rails (3.2.1) lib/sprockets/rails/quiet_assets.rb:13:in `call'
+actionpack (5.2.1) lib/action_dispatch/middleware/remote_ip.rb:81:in `call'
+actionpack (5.2.1) lib/action_dispatch/middleware/request_id.rb:27:in `call'
+rack (2.0.5) lib/rack/method_override.rb:22:in `call'
+rack (2.0.5) lib/rack/runtime.rb:22:in `call'
+activesupport (5.2.1) lib/active_support/cache/strategy/local_cache_middleware.rb:29:in `call'
+actionpack (5.2.1) lib/action_dispatch/middleware/executor.rb:14:in `call'
+actionpack (5.2.1) lib/action_dispatch/middleware/static.rb:127:in `call'
+rack (2.0.5) lib/rack/sendfile.rb:111:in `call'
+railties (5.2.1) lib/rails/engine.rb:524:in `call'
+puma (3.12.0) lib/puma/configuration.rb:225:in `call'
+puma (3.12.0) lib/puma/server.rb:658:in `handle_request'
+puma (3.12.0) lib/puma/server.rb:472:in `process_client'
+puma (3.12.0) lib/puma/server.rb:332:in `block in run'
+puma (3.12.0) lib/puma/thread_pool.rb:133:in `block in spawn_thread'
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 16:59:23 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (0.5ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 17ms (Views: 10.5ms | ActiveRecord: 16.0ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 16:59:59 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (0.3ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 2ms (Views: 1.5ms | ActiveRecord: 0.3ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:01:02 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (0.3ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 2ms (Views: 1.0ms | ActiveRecord: 0.3ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:04:17 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (0.5ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 2ms (Views: 1.2ms | ActiveRecord: 0.5ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:05:49 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (1.1ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 3ms (Views: 1.3ms | ActiveRecord: 1.1ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:06:07 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (3.8ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 6ms (Views: 1.6ms | ActiveRecord: 3.8ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:06:32 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (1.5ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 3ms (Views: 1.4ms | ActiveRecord: 1.5ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:07:08 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (0.8ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 2ms (Views: 1.2ms | ActiveRecord: 0.8ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:07:31 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (1.1ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 3ms (Views: 1.2ms | ActiveRecord: 1.1ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:07:45 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (0.2ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 2ms (Views: 1.5ms | ActiveRecord: 0.2ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:08:42 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (1.9ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 4ms (Views: 1.3ms | ActiveRecord: 1.9ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:09:50 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (0.3ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 2ms (Views: 1.1ms | ActiveRecord: 0.3ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:11:18 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (0.3ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 2ms (Views: 1.1ms | ActiveRecord: 0.3ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:12:08 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (66.2ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 69ms (Views: 2.0ms | ActiveRecord: 66.2ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:12:45 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (0.3ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 2ms (Views: 1.3ms | ActiveRecord: 0.3ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:13:15 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (1.0ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 3ms (Views: 1.7ms | ActiveRecord: 1.0ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:14:26 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (3.1ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 5ms (Views: 1.2ms | ActiveRecord: 3.1ms)
+
+
+  [1m[35m (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mPetition Create (21.1ms)[0m  [1m[32mINSERT INTO "petitions" ("title", "description", "link", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5) RETURNING "id"[0m  [["title", "Hi Justin!"], ["description", "you better donate justin"], ["link", "https://www.fsf.org"], ["created_at", "2018-12-02 01:15:26.503445"], ["updated_at", "2018-12-02 01:15:26.503445"]]
+  [1m[35m (4.5ms)[0m  [1m[35mCOMMIT[0m
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:15:40 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (0.3ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 3ms (Views: 1.7ms | ActiveRecord: 0.3ms)
+
+
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:15:41 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (0.6ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 3ms (Views: 1.5ms | ActiveRecord: 0.6ms)
+
+
+  [1m[35m (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mPetition Create (0.5ms)[0m  [1m[32mINSERT INTO "petitions" ("title", "description", "link", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5) RETURNING "id"[0m  [["title", "Hi Justin!"], ["description", "you better donate justin"], ["link", "https://www.fsf.org"], ["created_at", "2018-12-02 01:15:54.607338"], ["updated_at", "2018-12-02 01:15:54.607338"]]
+  [1m[35m (2.5ms)[0m  [1m[35mCOMMIT[0m
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:15:58 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (69.5ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 73ms (Views: 3.3ms | ActiveRecord: 69.5ms)
+
+
+  [1m[36mPetition Load (0.3ms)[0m  [1m[34mSELECT  "petitions".* FROM "petitions" LIMIT $1[0m  [["LIMIT", 11]]
+  [1m[36mPetition Load (0.6ms)[0m  [1m[34mSELECT  "petitions".* FROM "petitions" ORDER BY "petitions"."id" ASC LIMIT $1 OFFSET $2[0m  [["LIMIT", 1], ["OFFSET", 1]]
+  [1m[35m (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mPetition Destroy (6.7ms)[0m  [1m[31mDELETE FROM "petitions" WHERE "petitions"."id" = $1[0m  [["id", 2]]
+  [1m[35m (1.0ms)[0m  [1m[35mCOMMIT[0m
+  [1m[36mPetition Load (0.4ms)[0m  [1m[34mSELECT  "petitions".* FROM "petitions" ORDER BY "petitions"."id" ASC LIMIT $1 OFFSET $2[0m  [["LIMIT", 1], ["OFFSET", 1]]
+  [1m[35m (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mPetition Destroy (1.0ms)[0m  [1m[31mDELETE FROM "petitions" WHERE "petitions"."id" = $1[0m  [["id", 3]]
+  [1m[35m (2.1ms)[0m  [1m[35mCOMMIT[0m
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:16:38 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (221.2ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 223ms (Views: 1.4ms | ActiveRecord: 221.2ms)
+
+
+  [1m[35m (0.2ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mPetition Create (0.8ms)[0m  [1m[32mINSERT INTO "petitions" ("title", "description", "link", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5) RETURNING "id"[0m  [["title", "Urgent Action Alert"], ["description", "Click Now!!!"], ["link", "https://www.fsf.org"], ["created_at", "2018-12-02 01:17:41.594233"], ["updated_at", "2018-12-02 01:17:41.594233"]]
+  [1m[35m (3.2ms)[0m  [1m[35mCOMMIT[0m
+Started GET "/petitions" for 127.0.0.1 at 2018-12-01 17:18:14 -0800
+Processing by PetitionsController#index as JSON
+  Parameters: {"petition"=>{}}
+  [1m[36mPetition Load (5.2ms)[0m  [1m[34mSELECT "petitions".* FROM "petitions"[0m
+  ↳ app/controllers/petitions_controller.rb:4
+Completed 200 OK in 20ms (Views: 13.8ms | ActiveRecord: 5.2ms)
+
+

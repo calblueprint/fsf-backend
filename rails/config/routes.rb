@@ -5,5 +5,6 @@ Rails.application.routes.draw do
 
   # Test route
   get 'home', to: 'home#home'
+  resources :petitions, only: [:index]
 
 end

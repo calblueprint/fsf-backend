@@ -23,3 +23,4 @@ NUM_ARTICLES = 5
       content: Faker::Lorem.paragraphs(15)
     })
   end
+Petition.create title: "Please Act Now!", description: "Your digital rights are dying", link: "https://my.fsf.org/civicrm/petition/sign?sid=8&reset=1"

@@ -11,7 +11,11 @@ import (
 
 var siteKey, adminAPIKey string
 
-// return
+// This function accepts a service token from the client, who obtains it from
+// CAS. It interacts with CAS server to validate the token.
+//
+// @param token: service token
+// @return:
 //   bool: whether auth is successful
 //   string: id string to retrieve user auth info from civicrm
 //   error: if err != nil, there is a server error
@@ -62,6 +66,10 @@ func validateToken(token string) (bool, string, error) {
 	return true, r.AuthSuccess.Attributes.Email, nil
 }
 
+// A helper function to query CiviCRM
+// @param
+//   v: encoded CiviCRM REST query
+//   dest: an object where we store the decoded json object
 func queryCiviCRM(v url.Values, dest interface{}) error {
 	c := &http.Client{}
 	requestURL := "https://crmserver3d.fsf.org/sites/all/modules/civicrm/extern/rest.php"
@@ -87,7 +95,13 @@ func queryCiviCRM(v url.Values, dest interface{}) error {
 	return nil
 }
 
-func getAPIKey(id string) (string, error) {
+// Retrieve the API key of the user identified by certain id string
+// @param id: id string from CAS (currently user's email)
+// @return:
+//   a string that is the API key
+//   a string that is the contact id in CiviCRM
+//   an error if any error occurs
+func getAPIKey(id string) (string, string, error) {
 	/** Because of the design of CiviCRM, API Key is only shown when we do an update
 	  i.e. a create with contact_id specified.
 
@@ -110,7 +124,7 @@ func getAPIKey(id string) (string, error) {
 	idQueryJson, err := json.Marshal(idQuery)
 	if err != nil {
 		log.Fatal("Error constructing query json for civicrm")
-		return "", err
+		return "", "", err
 	}
 
 	v := &url.Values{}
@@ -128,7 +142,7 @@ func getAPIKey(id string) (string, error) {
 	}
 
 	if err = queryCiviCRM(*v, &idQueryResp); err != nil || idQueryResp.Error != 0 || len(idQueryResp.Values) != 1 {
-		return "", fmt.Errorf("Bad response")
+		return "", "", fmt.Errorf("Bad response")
 	}
 
 	contactId := idQueryResp.Values[0].Id
@@ -148,11 +162,11 @@ func getAPIKey(id string) (string, error) {
 	}
 
 	if err = queryCiviCRM(*v, &updateQueryResp); err != nil || updateQueryResp.Error != 0 {
-		return "", fmt.Errorf("Bad response")
+		return "", "", fmt.Errorf("Bad response")
 	}
 
 	if updateQueryResp.Values[contactId].APIKey != "" {
-		return updateQueryResp.Values[contactId].APIKey, nil
+		return updateQueryResp.Values[contactId].APIKey, contactId, nil
 	}
 
 	log.Println("Found API key:" + updateQueryResp.Values[contactId].APIKey)
@@ -163,10 +177,10 @@ func getAPIKey(id string) (string, error) {
 	v.Set("json", updateQueryJson)
 
 	if err = queryCiviCRM(*v, &updateQueryResp); err != nil || updateQueryResp.Error != 0 {
-		return "", fmt.Errorf("Bad response")
+		return "", "", fmt.Errorf("Bad response")
 	}
 
 	log.Println("Set API key:" + updateQueryResp.Values[contactId].APIKey)
 
-	return newAPIKey, nil
+	return newAPIKey, contactId, nil
 }

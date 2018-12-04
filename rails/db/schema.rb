@@ -23,7 +23,6 @@ ActiveRecord::Schema.define(version: 2018_12_02_005009) do
     t.boolean "news_alert", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "title"
   end
 
   create_table "petitions", force: :cascade do |t|

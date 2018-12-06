@@ -18,24 +18,25 @@ namespace :db do
     entries = feed.entries
     entries.each do |entry|
       articleInDB = Article.find_by title: entry.title
+      puts "did we find an entry? here it is"
       puts entry
       article_params = {
-          title: entry.title, 
+          title: entry.title,
           link: entry.id, 
           pub_date: entry.published,
           content: entry.content,
-          news_alert: :false,
+          news_alert: false,
       }
       if(!articleInDB)
-        article = Article.new(article_params)
         begin
-          saved = article.save!
+          savedArticle = Article.create(article_params)
+          puts "we just created an article and"
         rescue ActiveRecord::StatementInvalid => invalid
-          puts "invalid"
+          puts "#{article_params} invalid"
         end
-        if saved
-          article = Article.find(article.id)
-          puts "success in creating article #{article}\n"
+        if savedArticle 
+          article = Article.find(savedArticle.id)
+          puts "success in creating article #{savedArticle}\n"
         else
           puts "failed to save article\n"
         end

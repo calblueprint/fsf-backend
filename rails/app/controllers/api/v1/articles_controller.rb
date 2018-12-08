@@ -29,6 +29,8 @@ module Api
                     :pub_date,
                     :content,
                     :news_alert,
+                    :description,
+                    :summary
                 )
             end
         end

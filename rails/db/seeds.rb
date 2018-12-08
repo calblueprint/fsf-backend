@@ -16,11 +16,13 @@ NUM_ARTICLES = 5
 #Creates 5 Test Articles
 0.upto(NUM_ARTICLES) do |i|
     Article.create({
-      title: "#{Faker::Kpop.ii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups}",
+      title: "#{Faker::Kpop.ii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups}",
       link: Faker::Internet.url("fsf.org"),
       pub_date: Faker::Date.backward(29),
       news_alert: false,
-      content: Faker::Lorem.paragraphs(15)
+      content: Faker::Lorem.paragraphs(15),
+      description: Faker::Lorem.sentence(88),
+      summary: Faker::Lorem.sentence(88)
     })
   end
 Petition.create title: "Please Act Now!", description: "Your digital rights are dying", link: "https://my.fsf.org/civicrm/petition/sign?sid=8&reset=1"

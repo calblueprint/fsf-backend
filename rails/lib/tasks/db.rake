@@ -22,6 +22,8 @@ namespace :db do
         html_doc = Nokogiri::HTML(entry.content)
         paragraph_list = html_doc.css('p')
         paragraph_item = paragraph_list.first.text
+
+        #  This regex splits the incoming paragraph by periods
         sentence_list = paragraph_item.split(/(?<=(?<=[a-zA-Z])[a-zA-Z])\./)
         sentence_list.delete_if{|el| el.length == 0}
         summary_from_content = sentence_list.first

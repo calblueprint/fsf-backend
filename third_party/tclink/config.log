@@ -32,9 +32,14 @@ PATH: /usr/bin
 PATH: /bin
 PATH: /usr/local/games
 PATH: /usr/games
-PATH: /home/tonyyang/Android/Sdk/bin
+PATH: /home/tony/Android/Sdk//bin
 PATH: /opt/go/bin
 PATH: /home/tony/.local/bin
+PATH: /home/tony/Android/Sdk//emulator
+PATH: /home/tony/Android/Sdk//tools
+PATH: /home/tony/Android/Sdk//tools/bin
+PATH: /home/tony/Android/Sdk//platform-tools
+PATH: /home/tony/go/bin/
 
 
 ## ----------- ##
@@ -321,6 +326,7 @@ on tony-laptop
 
 config.status:809: creating Makefile
 config.status:809: creating config.h
+config.status:979: config.h is unchanged
 
 ## ---------------- ##
 ## Cache variables. ##

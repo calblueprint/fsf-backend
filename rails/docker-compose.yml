@@ -1,0 +1,19 @@
+version: '3'
+services:
+  db:
+    image: postgres:10
+    volumes:
+      - fsfpgdata:/var/lib/postgresql/data
+  web:
+    build:
+        context: .
+        dockerfile: docker/rails_dockerfile
+    command: rails s
+    volumes:
+      - .:/myapp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+volumes:
+  fsfpgdata:

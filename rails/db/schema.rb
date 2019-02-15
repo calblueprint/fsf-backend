@@ -27,13 +27,20 @@ ActiveRecord::Schema.define(version: 2018_12_08_080150) do
     t.text "summary"
   end
 
+  create_table "messages", force: :cascade do |t|
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "title"
+    t.string "link"
+  end
+
   create_table "petitions", force: :cascade do |t|
     t.string "title"
     t.string "description"
     t.string "link"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "title"
   end
 
 end

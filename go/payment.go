@@ -1,6 +1,6 @@
 package main
 
-// #cgo LDFLAGS: ../third_party/tclink/libtclink.a -lssl -lcrypto
+// #cgo LDFLAGS: ../third_party/tclink/libtclink.a -lssl -lcrypto -L/usr/local/opt/openssl/lib
 // #cgo CFLAGS: -I../third_party/tclink/
 // #include <stdlib.h>
 // #include "tc_wrap.h"

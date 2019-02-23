@@ -245,8 +245,6 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 //     "address": "user address",
 //     "email": "email address"
 //   }
-//
-// at this time, the id to talk to CiviCRM is the users' email address
 func getUserInformation(w http.ResponseWriter, req *http.Request) {
 	/** requires a POST request
 	 */

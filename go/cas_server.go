@@ -236,6 +236,42 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 	enc.Encode(key)
 }
 
+// handles a userInfo request
+// accepts JSON GET request
+// returns either a HTTP error or a json response like:
+//   {
+//     "firstname": "user first name",
+//     "lastname": "user last name",
+//     "address": "user address",
+//     "email": "email address"
+//   }
+//
+// at this time, the id to talk to CiviCRM is the users' email address
+func getUserInformation(w http.ResponseWriter, req *http.Request) {
+	/** requires a POST request
+	 */
+	if req.Method != "GET" {
+		writeError(w, "Only GET requests are supported")
+		return
+	}
+	// write APIKey back in response
+	enc := json.NewEncoder(w)
+
+	var userInfo struct {
+		FirstName string `json:"firstname"`
+		LastName  string `json:"lastname"` // contact id from CiviCRM
+		Address   string `json:"address"`
+		Email     string `json:"email"`
+	}
+
+	userInfo.FirstName = "Mukil"
+	userInfo.LastName = "Loganathan"
+	userInfo.Address = "3664 Cody Court"
+	userInfo.Email = "mukil.loganathan@gmail.com"
+
+	enc.Encode(userInfo)
+}
+
 func main() {
 	// CAS mobile login server
 	addrPtr := flag.String("addr", "0.0.0.0:8080", "address to listen")
@@ -255,5 +291,6 @@ func main() {
 	http.HandleFunc("/payment/register", handleRegisterCC)
 	http.HandleFunc("/payment/pay", handlePayment)
 	http.HandleFunc("/payment/repeat_pay", handleRepeatPayment)
+	http.HandleFunc("/user/info", getUserInformation)
 	log.Fatal(http.ListenAndServe(*addrPtr, nil))
 }

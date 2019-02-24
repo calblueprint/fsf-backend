@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"github.com/gorilla/mux"
+	// "github.com/gorilla/mux"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,8 +17,10 @@ func TestHandleRegisterCC(t *testing.T) { // it needs to begin with Test
 	request, err := http.NewRequest("POST", "/payment/register", payLoad)
 
 	if err == nil {
+		handler := http.HandlerFunc(handleRegisterCC)
 		response := httptest.NewRecorder()
-		mux.NewRouter().ServeHTTP(response, request)
+		handler.ServeHTTP(response, request)
+		// mux.NewRouter().ServeHTTP(response, request)
 
 		if response.Code != 200 {
 			t.Errorf("/payment/register FAILED")
@@ -27,3 +29,4 @@ func TestHandleRegisterCC(t *testing.T) { // it needs to begin with Test
 		t.Errorf(err.Error())
 	}
 }
+

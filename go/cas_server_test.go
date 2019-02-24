@@ -8,6 +8,8 @@ import (
 	"testing"
 )
 
+// Set environment variables: TCUSERNAME="your_tc_username" TCPASSWORD="your_tc_password"
+
 // Test /payment/register endpoint
 func TestHandleRegisterCC(t *testing.T) {
 	tcUsername = os.Getenv("TCUSERNAME")

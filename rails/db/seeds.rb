@@ -13,6 +13,9 @@ NUM_ARTICLES = 5
 #   Message.create content: Faker::HarryPotter.quote
 # end
 
+# Create source urls
+Source.create source_type: :rss, url: "https://static.fsf.org/fsforg/rss/news.xml"
+
 Petition.create title: "Please Act Now!", description: "Your digital rights are dying", link: "https://my.fsf.org/civicrm/petition/sign?sid=8&reset=1"
 
 #Creates 5 Test Articles

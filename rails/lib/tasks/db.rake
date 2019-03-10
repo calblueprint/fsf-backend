@@ -9,11 +9,40 @@ namespace :db do
   task updateNews: :environment do
     Source.all.each do |source|
       if source.rss?
-        parse_rss(source.url)
+        parse_rss(source.rss_url)
+      elsif source.twitter?
+        parse_twitter(source)
       else
         puts "Unknown source type #{source.source_type}\n"
       end
     end
+
+    puts DateTime.now
+  end
+end
+
+def parse_twitter(source)
+  client = source.get_twitter_client()
+
+  # for now, just get the latest 20 tweets
+  # TODO: long term solution
+  tweets = client.user_timeline(source.twitter_username, count: 20)
+  tweets.each do |tweet|
+    parse_tweet(tweet)
+    puts "#{tweet.id}"
+  end
+end
+
+def parse_tweet(tweet)
+  unless Tweet.exists?(tweet.id)
+    Tweet.create({
+      :id => tweet.id,
+      :date => tweet.created_at,
+      :url => tweet.uri,
+      :text => tweet.full_text
+    })
+  else
+    puts "Existing tweet #{tweet.id}"
   end
 end
 
@@ -31,8 +60,6 @@ def parse_rss(url)
   entries.each do |entry|
     parse_rss_entry(entry)
   end
-
-  puts DateTime.now
 end
 
 def parse_rss_entry(entry)

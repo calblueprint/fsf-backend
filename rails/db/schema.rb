@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_03_09_232344) do
+ActiveRecord::Schema.define(version: 2019_03_10_013759) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -45,7 +45,20 @@ ActiveRecord::Schema.define(version: 2019_03_09_232344) do
 
   create_table "sources", force: :cascade do |t|
     t.integer "source_type"
+    t.string "rss_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "twitter_consumer_key"
+    t.string "twitter_consumer_secret"
+    t.string "twitter_access_token"
+    t.string "twitter_access_token_secret"
+    t.string "twitter_username"
+  end
+
+  create_table "tweets", force: :cascade do |t|
     t.string "url"
+    t.string "text"
+    t.datetime "date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

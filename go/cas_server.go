@@ -4,7 +4,11 @@ import (
 	"encoding/json"
 	"flag"
 	"log"
+	"math/rand"
 	"net/http"
+	"net/url"
+	"reflect"
+	"time"
 )
 
 var tcUsername, tcPassword string
@@ -72,6 +76,17 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 //   "status": "status of transaction { approved, declined, baddata, error }"
 //   "authcode": "auth code for the transaction"
 // }
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+func RandStringBytesRmndr(n int) string {
+	b := make([]byte, n)
+	rand.Seed(time.Now().UTC().UnixNano())
+	for i := range b {
+		b[i] = letterBytes[rand.Int63()%int64(len(letterBytes))]
+	}
+	return string(b)
+}
+
 func handlePayment(w http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
 		writeError(w, "Only POST requests are supported")
@@ -84,21 +99,129 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		Cc     string `json:"cc"`
 		Exp    string `json:"exp"`
 		Amount string `json:"amount"`
+		Email  string `json:"email"`
+		ApiKey string `json:"apikey"`
 	}
 
 	if err := dec.Decode(&ccInfo); err != nil {
 		writeError(w, "Cannot parse request body correctly")
 		return
 	}
-
-	mgr := NewTransactionMgr(tcUsername, tcPassword)
-	saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
-
-	if err != nil {
-		log.Println(err.Error())
-		writeError(w, "Payment failed")
-		return
+	// mgr := NewTransactionMgr(tcUsername, tcPassword)
+	// saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
+	// TODO: DUMMY RES FOR TESTING REMOVE LATER
+	var saleResp struct {
+		TransID  string `json:"transid"`
+		Status   string `json:"status"`
+		AuthCode string `json:"authcode"`
 	}
+
+	saleResp.TransID = RandStringBytesRmndr(8)
+	saleResp.Status = "approved"
+	saleResp.AuthCode = "world"
+
+	/*
+		type TCSaleResp struct {
+			TransID  string `json:"transid"`
+			Status   string `json:"status"`
+			AuthCode string `json:"authcode"`
+		}
+	*/
+
+	log.Printf("STEP 1")
+
+	if saleResp.Status != "approved" {
+		// do something if transaction is not approved
+		writeError(w, "Transaction not successfully approved")
+	} else {
+		// record this transaction in CiviCRM
+		userEmail := ccInfo.Email
+		userAPIKey := ccInfo.ApiKey
+		civiCRMAPIKey, userContactId, err := getAPIKey(userEmail)
+		if err != nil {
+			writeError(w, "error retrieving contact info from CiviCRM")
+			return
+		} else if !reflect.DeepEqual(userAPIKey, civiCRMAPIKey) {
+			writeError(w, "authentication failed - api keys do not match")
+			return
+		}
+		transID := saleResp.TransID
+
+		log.Printf("STEP 2")
+		// Need to pass in API key + contact_id
+		/*
+					ccInfo struct {
+					Name   string `json:"name"`
+					Cc     string `json:"cc"`
+					Exp    string `json:"exp"`
+			*		Amount string `json:"amount"`
+			++	Email string `json:"email"`
+			++	ApiKey string `json:"apikey"`
+				}
+		*/
+		var info struct {
+			FinancialTypeId string `json:"financial_type_id"`
+			TotalAmount     string `json:"total_amount"`
+			ContactId       string `json:"contact_id"`
+			TrxnId          string `json:"trxn_id"`
+		}
+
+		info.FinancialTypeId = "Donation"
+		info.TotalAmount = ccInfo.Amount
+		info.ContactId = userContactId
+		info.TrxnId = transID
+
+		infoJson, err := json.Marshal(info)
+		if err != nil {
+			log.Fatal("Error constructing info json for civicrm")
+			return
+		}
+
+		v := &url.Values{}
+		v.Add("entity", "Contribution")
+		v.Add("action", "create")
+		v.Add("api_key", adminAPIKey)
+		v.Add("key", siteKey)
+		v.Add("json", string(infoJson))
+
+		var infoPutResp struct {
+			Error int `json:"is_error"`
+			/*Values []struct {
+				Id string `json:"id"`
+			} `json:"values"`*/
+		}
+
+		if err = queryCiviCRM(*v, &infoPutResp); err != nil || infoPutResp.Error != 0 {
+			log.Printf("REQUEST: %v", v.Get("json"))
+			log.Printf("Bad response: %v", err)
+		}
+
+		log.Printf("STEP 3")
+		// relevantInfo := {"financial_type_id":"","total_amount":"","contact_id":"user_contact_id"}
+		/*
+			firstPart := "https://crmserver3d.fsf.org/sites/all/modules/civicrm/extern/rest.php?entity=Contribution&action=create&api_key="
+			secondPart := "&key="
+			thirdPart := "&json="
+			url := firstPart + adminAPIKey + secondPart + siteKey + thirdPart + string(infoJson)
+		*/
+		// url := "https://crmserver3d.fsf.org/sites/all/modules/civicrm/extern/rest.php?entity=Contribution&action=create&api_key=userkey&key=sitekey&json=" + relevantInfo
+		// siteKey, adminAPIKey
+		/*
+			request, err := http.NewRequest("POST", url, nil)
+			if err != nil {
+				writeError(w, "error storing transaction info to CiviCRM")
+				return
+			}
+		*/
+
+	}
+
+	// TODO: UNCOMMENT WITH LINE 98
+	// if err != nil {
+	// 	log.Println(err.Error())
+	// 	writeError(w, "Payment failed")
+	// 	return
+	// }
 
 	// write billing id back in response
 	enc := json.NewEncoder(w)

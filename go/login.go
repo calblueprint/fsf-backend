@@ -89,6 +89,7 @@ func queryCiviCRM(v url.Values, dest interface{}) error {
 	dec := json.NewDecoder(resp.Body)
 	err = dec.Decode(dest)
 	if err != nil {
+		fmt.Printf("JSON decode: %v", err)
 		return fmt.Errorf("Bad response")
 	}
 

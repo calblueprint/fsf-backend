@@ -5,3 +5,8 @@
 tcexample
 tctest
 
+config.h
+config.log
+config.status
+Makefile
+

@@ -6,7 +6,7 @@ module Api
                 articles = Article.order('pub_date DESC');
                 render json: {status: 'SUCCESS', message:'Loaded FSF Articles', data: articles}, status: :ok
             end
-            
+
             def show
                 article = Article.find(params[:id])
                 render json: {status: 'SUCCESS', message:'Loaded FSF Article', data: article}, status: :ok

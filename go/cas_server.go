@@ -237,7 +237,12 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 }
 
 // handles a userInfo request
-// accepts JSON GET request
+// accepts JSON POST request with the following body:
+//   {
+//     "key": "api key for CiviCRM",
+//     "id": "contact id for CiviCRM",
+//     "email": "email address"
+//   }
 // returns either a HTTP error or a json response like:
 //   {
 //     "firstname": "user first name",
@@ -248,33 +253,43 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 func getUserInformation(w http.ResponseWriter, req *http.Request) {
 	/** requires a POST request
 	 */
-	if req.Method != "GET" {
-		writeError(w, "Only GET requests are supported")
+	if req.Method != "POST" {
+		writeError(w, "Only POST requests are supported")
 		return
 	}
-	// write APIKey back in response
-	enc := json.NewEncoder(w)
 
-	var userInfo struct {
-		FirstName string `json:"firstname"`
-		LastName  string `json:"lastname"` // contact id from CiviCRM
-		Address   string `json:"address"`
-		Email     string `json:"email"`
+	dec := json.NewDecoder(req.Body)
+	var key struct {
+		Key   string `json:"key"`
+		ID    string `json:"id"` // contact id from CiviCRM
+		Email string `json:"email"`
 	}
 
-	userInfo.FirstName = "Mukil"
-	userInfo.LastName = "Loganathan"
-	userInfo.Address = "3664 Cody Court"
-	userInfo.Email = "mukil.loganathan@gmail.com"
+	if err := dec.Decode(&key); err != nil {
+		log.Println(dec)
+		log.Println(err)
+		writeError(w, "Cannot parse request body correctly")
+		return
+	}
 
+	userInfo, err := getUserInfo(key.Key, key.ID)
+
+	if err != nil {
+		log.Println(err.Error())
+		writeError(w, "Server error when interacting with CiviCRM")
+		return
+	}
+
+	// write UserInfo
+	enc := json.NewEncoder(w)
 	enc.Encode(userInfo)
 }
 
 func main() {
 	// CAS mobile login server
 	addrPtr := flag.String("addr", "0.0.0.0:8080", "address to listen")
-	siteKeyPtr := flag.String("sitekey", "", "provide site key of CiviCRM")
-	adminAPIKeyPtr := flag.String("adminkey", "", "provide the admin API key for CiviCRM")
+	siteKeyPtr := flag.String("sitekey", "9QocDQEnB0Nk2gPEVjc8YxVY", "provide site key of CiviCRM")
+	adminAPIKeyPtr := flag.String("adminkey", "789789789", "provide the admin API key for CiviCRM")
 	tcuserPtr := flag.String("tcuser", "", "username for Trust Commerce")
 	tcpasswdPtr := flag.String("tcpasswd", "", "password for Trust Commerce")
 

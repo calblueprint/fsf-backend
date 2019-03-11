@@ -167,6 +167,10 @@ func getUserInfo(apiKey string, contactId string) (*UserInfo, error) {
 
 	  If current API key is not set, we set the API key and return to the user.
 	*/
+	valid := validateAPIKeyForUpdateRequests(apiKey, contactId)
+	if !valid {
+		return nil, fmt.Errorf("Bad api key")
+	}
 	idJSON := `{"id":"` + contactId + `"}`
 	v := &url.Values{}
 	v.Add("entity", "Contact")

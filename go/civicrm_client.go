@@ -175,7 +175,7 @@ func getUserInfo(apiKey string, contactId string) (*UserInfo, error) {
 	v := &url.Values{}
 	v.Add("entity", "Contact")
 	v.Add("action", "get")
-	v.Add("api_key", apiKey)
+	v.Add("api_key", adminAPIKey)
 	v.Add("key", siteKey)
 	v.Add("json", idJSON)
 

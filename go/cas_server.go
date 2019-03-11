@@ -133,6 +133,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 	if saleResp.Status != "approved" {
 		// do something if transaction is not approved
 		writeError(w, "Transaction not successfully approved")
+		return
 	} else {
 		// record this transaction in CiviCRM
 		userEmail := ccInfo.Email

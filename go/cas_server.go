@@ -78,15 +78,6 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 // }
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-func RandStringBytesRmndr(n int) string {
-	b := make([]byte, n)
-	rand.Seed(time.Now().UTC().UnixNano())
-	for i := range b {
-		b[i] = letterBytes[rand.Int63()%int64(len(letterBytes))]
-	}
-	return string(b)
-}
-
 func handlePayment(w http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
 		writeError(w, "Only POST requests are supported")
@@ -116,7 +107,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		AuthCode string `json:"authcode"`
 	}
 
-	saleResp.TransID = RandStringBytesRmndr(8)
+	saleResp.TransID = "hello"
 	saleResp.Status = "approved"
 	saleResp.AuthCode = "world"
 

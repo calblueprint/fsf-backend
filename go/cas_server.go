@@ -150,67 +150,11 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		writeError(w, "transaction not successfully approved")
 		return
 	} else {
-		// record this transaction in CiviCRM
-		userEmail := ccInfo.Email
-		userAPIKey := ccInfo.ApiKey
-		civiCRMAPIKey, userContactId, err := getAPIKey(userEmail)
+		err := recordTransactionInCiviCRM(ccInfo.Email, ccInfo.ApiKey, saleResp.TransID, ccInfo.Amount)
 		if err != nil {
 			log.Println(err.Error())
-			writeError(w, "error retrieving contact info from CiviCRM")
+			writeError(w, err.Error())
 			return
-		} else if !reflect.DeepEqual(userAPIKey, civiCRMAPIKey) {
-			writeError(w, "authentication failed - api keys do not match")
-			return
-		}
-		transID := saleResp.TransID
-
-		/*
-					ccInfo struct {
-					Name   string `json:"name"`
-					Cc     string `json:"cc"`
-					Exp    string `json:"exp"`
-			*		Amount string `json:"amount"`
-			++	Email string `json:"email"`
-			++	ApiKey string `json:"apikey"`
-				}
-		*/
-
-		// transactionInfo struct to put into CiviCRM
-		var transactionInfo struct {
-			FinancialTypeId string `json:"financial_type_id"`
-			TotalAmount     string `json:"total_amount"`
-			ContactId       string `json:"contact_id"`
-			TrxnId          string `json:"trxn_id"`
-		}
-		transactionInfo.FinancialTypeId = "Donation"
-		transactionInfo.TotalAmount = ccInfo.Amount
-		transactionInfo.ContactId = userContactId
-		transactionInfo.TrxnId = transID
-
-		infoJson, err := json.Marshal(transactionInfo)
-		if err != nil {
-			log.Println(err.Error())
-			writeError(w, "error constructing infoJson for civicrm from transactionInfo")
-			return
-		}
-
-		v := &url.Values{}
-		v.Add("entity", "Contribution")
-		v.Add("action", "create")
-		v.Add("api_key", adminAPIKey)
-		v.Add("key", siteKey)
-		v.Add("json", string(infoJson))
-
-		var infoPutResp struct {
-			Error int `json:"is_error"`
-		}
-
-		if err = queryCiviCRM(*v, &infoPutResp); err != nil || infoPutResp.Error != 0 {
-			// writeError(w, err.Error())
-			writeError(w, "error querying CiviCRM")
-			return
-			// log.Printf("REQUEST: %v", v.Get("json"))
-			// log.Printf("Bad response: %v", err)
 		}
 	}
 
@@ -218,6 +162,63 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 	enc := json.NewEncoder(w)
 	// see TCSaleResp struct for json response struct
 	enc.Encode(saleResp)
+}
+
+func recordTransactionInCiviCRM(userEmail string, userAPIKey string, transID string, amount string) error {
+	// record this transaction in CiviCRM
+	civiCRMAPIKey, userContactId, err := getAPIKey(userEmail)
+	if err != nil {
+		log.Println(err.Error())
+		return errors.New("error retrieving contact info from CiviCRM")
+	} else if !reflect.DeepEqual(userAPIKey, civiCRMAPIKey) {
+		return errors.New("authentication failed - api keys do not match")
+	}
+
+	/*
+				ccInfo struct {
+				Name   string `json:"name"`
+				Cc     string `json:"cc"`
+				Exp    string `json:"exp"`
+		*		Amount string `json:"amount"`
+		++	Email string `json:"email"`
+		++	ApiKey string `json:"apikey"`
+			}
+	*/
+
+	// transactionInfo struct to put into CiviCRM
+	var transactionInfo struct {
+		FinancialTypeId string `json:"financial_type_id"`
+		TotalAmount     string `json:"total_amount"`
+		ContactId       string `json:"contact_id"`
+		TrxnId          string `json:"trxn_id"`
+	}
+	transactionInfo.FinancialTypeId = "Donation"
+	transactionInfo.TotalAmount = amount
+	transactionInfo.ContactId = userContactId
+	transactionInfo.TrxnId = transID
+
+	infoJson, err := json.Marshal(transactionInfo)
+	if err != nil {
+		log.Println(err.Error())
+		return errors.New("error constructing infoJson for civicrm from transactionInfo")
+	}
+
+	v := &url.Values{}
+	v.Add("entity", "Contribution")
+	v.Add("action", "create")
+	v.Add("api_key", adminAPIKey)
+	v.Add("key", siteKey)
+	v.Add("json", string(infoJson))
+
+	var infoPutResp struct {
+		Error int `json:"is_error"`
+	}
+
+	if err = queryCiviCRM(*v, &infoPutResp); err != nil || infoPutResp.Error != 0 {
+		return errors.New("error querying CiviCRM")
+	}
+
+	return nil
 }
 
 // handles a request to store credit card info for repeating payments

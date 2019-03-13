@@ -31,3 +31,24 @@ func TestHandleRegisterCC(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 }
+
+func TestHandlePayment(t *testing.T) {
+	tcUsername = os.Getenv("TCUSERNAME")
+	tcPassword = os.Getenv("TCPASSWORD")
+	prePayload := []byte(`{"name": "John Smith", "cc": "4111111111111111", "exp": "0404", "email": "test@test.com", "apikey": ""}`)
+	payLoad := bytes.NewBuffer(prePayload)
+
+	request, err := http.NewRequest("POST", "/payment/pay", payLoad)
+
+	if err == nil {
+		handler := http.HandlerFunc(handleRegisterCC)
+		response := httptest.NewRecorder()
+		handler.ServeHTTP(response, request)
+
+		if response.Code != 200 {
+			t.Errorf("/payment/register FAILED")
+		}
+	} else {
+		t.Errorf(err.Error())
+	}
+}

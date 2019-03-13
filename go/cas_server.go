@@ -98,28 +98,24 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		writeError(w, "Cannot parse request body correctly")
 		return
 	}
-	// mgr := NewTransactionMgr(tcUsername, tcPassword)
-	// saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
-	// TODO: DUMMY RES FOR TESTING REMOVE LATER
-	var saleResp struct {
-		TransID  string `json:"transid"`
-		Status   string `json:"status"`
-		AuthCode string `json:"authcode"`
-	}
-
-	saleResp.TransID = "hello"
-	saleResp.Status = "approved"
-	saleResp.AuthCode = "world"
+	mgr := NewTransactionMgr(tcUsername, tcPassword)
+	saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
 
 	/*
-		type TCSaleResp struct {
-			TransID  string `json:"transid"`
-			Status   string `json:"status"`
-			AuthCode string `json:"authcode"`
-		}
+		var TCSaleResp struct {
+				TransID  string `json:"transid"`
+				Status   string `json:"status"`
+				AuthCode string `json:"authcode"`
+			}
+			DUMMY saleResp FOR TESTING REMOVE LATER
+
+			saleResp.TransID = "hello"
+			saleResp.Status = "approved"
+			saleResp.AuthCode = "world"
+
 	*/
 
-	log.Printf("STEP 1")
+	// log.Printf("STEP 1")
 
 	if saleResp.Status != "approved" {
 		// do something if transaction is not approved
@@ -139,7 +135,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		}
 		transID := saleResp.TransID
 
-		log.Printf("STEP 2")
+		// log.Printf("STEP 2")
 		// Need to pass in API key + contact_id
 		/*
 					ccInfo struct {
@@ -188,24 +184,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 			log.Printf("Bad response: %v", err)
 		}
 
-		log.Printf("STEP 3")
-		// relevantInfo := {"financial_type_id":"","total_amount":"","contact_id":"user_contact_id"}
-		/*
-			firstPart := "https://crmserver3d.fsf.org/sites/all/modules/civicrm/extern/rest.php?entity=Contribution&action=create&api_key="
-			secondPart := "&key="
-			thirdPart := "&json="
-			url := firstPart + adminAPIKey + secondPart + siteKey + thirdPart + string(infoJson)
-		*/
-		// url := "https://crmserver3d.fsf.org/sites/all/modules/civicrm/extern/rest.php?entity=Contribution&action=create&api_key=userkey&key=sitekey&json=" + relevantInfo
-		// siteKey, adminAPIKey
-		/*
-			request, err := http.NewRequest("POST", url, nil)
-			if err != nil {
-				writeError(w, "error storing transaction info to CiviCRM")
-				return
-			}
-		*/
-
+		// log.Printf("STEP 3")
 	}
 
 	// TODO: UNCOMMENT WITH LINE 98

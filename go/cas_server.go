@@ -2,13 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"log"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"reflect"
-	"time"
 )
 
 var tcUsername, tcPassword string
@@ -76,8 +75,6 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 //   "status": "status of transaction { approved, declined, baddata, error }"
 //   "authcode": "auth code for the transaction"
 // }
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
 func handlePayment(w http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
 		writeError(w, "Only POST requests are supported")
@@ -95,11 +92,42 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if err := dec.Decode(&ccInfo); err != nil {
+		log.Println(err.Error())
 		writeError(w, "Cannot parse request body correctly")
 		return
 	}
+
+	// input validation
+	var err error
+	if ccInfo.Name == "" {
+		err = errors.New("missing name field")
+	} else if ccInfo.Cc == "" {
+		err = errors.New("missing cc field")
+	} else if ccInfo.Exp == "" {
+		err = errors.New("missing exp field")
+	} else if ccInfo.Amount == "" {
+		err = errors.New("missing amount field")
+	} else if ccInfo.Email == "" {
+		err = errors.New("missing email field")
+	} else if ccInfo.ApiKey == "" {
+		err = errors.New("missing apiKey field")
+	}
+
+	if err != nil {
+		log.Println(err.Error())
+		writeError(w, err.Error())
+		return
+	}
+
+	// log.Printf("STEP 0")
+
 	mgr := NewTransactionMgr(tcUsername, tcPassword)
 	saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
+	if err != nil {
+		log.Println(err.Error())
+		writeError(w, "Payment failed")
+		return
+	}
 
 	/*
 		var TCSaleResp struct {
@@ -107,19 +135,19 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 				Status   string `json:"status"`
 				AuthCode string `json:"authcode"`
 			}
-			DUMMY saleResp FOR TESTING REMOVE LATER
+	*/
+	/*
+		DUMMY saleResp FOR TESTING REMOVE LATER
 
-			saleResp.TransID = "hello"
-			saleResp.Status = "approved"
-			saleResp.AuthCode = "world"
-
+		saleResp.TransID = "hello"
+		saleResp.Status = "approved"
+		saleResp.AuthCode = "world"
 	*/
 
 	// log.Printf("STEP 1")
-
 	if saleResp.Status != "approved" {
-		// do something if transaction is not approved
-		writeError(w, "Transaction not successfully approved")
+		log.Println(err.Error())
+		writeError(w, "transaction not successfully approved")
 		return
 	} else {
 		// record this transaction in CiviCRM
@@ -127,6 +155,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		userAPIKey := ccInfo.ApiKey
 		civiCRMAPIKey, userContactId, err := getAPIKey(userEmail)
 		if err != nil {
+			log.Println(err.Error())
 			writeError(w, "error retrieving contact info from CiviCRM")
 			return
 		} else if !reflect.DeepEqual(userAPIKey, civiCRMAPIKey) {
@@ -135,8 +164,6 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		}
 		transID := saleResp.TransID
 
-		// log.Printf("STEP 2")
-		// Need to pass in API key + contact_id
 		/*
 					ccInfo struct {
 					Name   string `json:"name"`
@@ -147,21 +174,23 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 			++	ApiKey string `json:"apikey"`
 				}
 		*/
-		var info struct {
+
+		// transactionInfo struct to put into CiviCRM
+		var transactionInfo struct {
 			FinancialTypeId string `json:"financial_type_id"`
 			TotalAmount     string `json:"total_amount"`
 			ContactId       string `json:"contact_id"`
 			TrxnId          string `json:"trxn_id"`
 		}
+		transactionInfo.FinancialTypeId = "Donation"
+		transactionInfo.TotalAmount = ccInfo.Amount
+		transactionInfo.ContactId = userContactId
+		transactionInfo.TrxnId = transID
 
-		info.FinancialTypeId = "Donation"
-		info.TotalAmount = ccInfo.Amount
-		info.ContactId = userContactId
-		info.TrxnId = transID
-
-		infoJson, err := json.Marshal(info)
+		infoJson, err := json.Marshal(transactionInfo)
 		if err != nil {
-			log.Fatal("Error constructing info json for civicrm")
+			log.Println(err.Error())
+			writeError(w, "error constructing infoJson for civicrm from transactionInfo")
 			return
 		}
 
@@ -174,29 +203,19 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 
 		var infoPutResp struct {
 			Error int `json:"is_error"`
-			/*Values []struct {
-				Id string `json:"id"`
-			} `json:"values"`*/
 		}
 
 		if err = queryCiviCRM(*v, &infoPutResp); err != nil || infoPutResp.Error != 0 {
-			log.Printf("REQUEST: %v", v.Get("json"))
-			log.Printf("Bad response: %v", err)
+			// writeError(w, err.Error())
+			writeError(w, "error querying CiviCRM")
+			return
+			// log.Printf("REQUEST: %v", v.Get("json"))
+			// log.Printf("Bad response: %v", err)
 		}
-
-		// log.Printf("STEP 3")
 	}
-
-	// TODO: UNCOMMENT WITH LINE 98
-	// if err != nil {
-	// 	log.Println(err.Error())
-	// 	writeError(w, "Payment failed")
-	// 	return
-	// }
 
 	// write billing id back in response
 	enc := json.NewEncoder(w)
-
 	// see TCSaleResp struct for json response struct
 	enc.Encode(saleResp)
 }

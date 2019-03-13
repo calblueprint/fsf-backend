@@ -26,6 +26,7 @@ func TestHandleRegisterCC(t *testing.T) {
 
 		if response.Code != 200 {
 			t.Errorf("/payment/register FAILED")
+			// t.Errorf("%i", response.Code)
 		}
 	} else {
 		t.Errorf(err.Error())

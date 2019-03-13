@@ -36,10 +36,30 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 	var ccInfo struct {
 		BillingID string `json:"billingid"`
 		Amount    string `json:"amount"`
+		Email     string `json:"email"`
+		ApiKey    string `json:"apikey"`
 	}
 
 	if err := dec.Decode(&ccInfo); err != nil {
 		writeError(w, "Cannot parse request body correctly")
+		return
+	}
+
+	// input validation
+	var err error
+	if ccInfo.BillingID == "" {
+		err = errors.New("missing billing id field")
+	} else if ccInfo.Amount == "" {
+		err = errors.New("missing amount field")
+	} else if ccInfo.Email == "" {
+		err = errors.New("missing email field")
+	} else if ccInfo.ApiKey == "" {
+		err = errors.New("missing apiKey field")
+	}
+
+	if err != nil {
+		log.Println(err.Error())
+		writeError(w, err.Error())
 		return
 	}
 
@@ -50,6 +70,19 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 		log.Println(err.Error())
 		writeError(w, "Payment failed")
 		return
+	}
+
+	if saleResp.Status != "approved" {
+		log.Println(err.Error())
+		writeError(w, "transaction not successfully approved")
+		return
+	} else {
+		err := recordTransactionInCiviCRM(ccInfo.Email, ccInfo.ApiKey, saleResp.TransID, ccInfo.Amount)
+		if err != nil {
+			log.Println(err.Error())
+			writeError(w, err.Error())
+			return
+		}
 	}
 
 	// write billing id back in response

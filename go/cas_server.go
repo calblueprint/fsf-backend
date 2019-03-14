@@ -183,6 +183,16 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		writeError(w, "transaction not successfully approved")
 		return
 	} else {
+		/*
+				ccInfo struct {
+					Name   string `json:"name"`
+					Cc     string `json:"cc"`
+					Exp    string `json:"exp"`
+			*		Amount string `json:"amount"`
+			++	Email string `json:"email"`
+			++	ApiKey string `json:"apikey"`
+				}
+		*/
 		err := recordTransactionInCiviCRM(ccInfo.Email, ccInfo.ApiKey, saleResp.TransID, ccInfo.Amount)
 		if err != nil {
 			log.Println(err.Error())
@@ -197,6 +207,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 	enc.Encode(saleResp)
 }
 
+// records transaction in CiviCRM
 func recordTransactionInCiviCRM(userEmail string, userAPIKey string, transID string, amount string) error {
 	// record this transaction in CiviCRM
 	civiCRMAPIKey, userContactId, err := getAPIKey(userEmail)
@@ -207,23 +218,13 @@ func recordTransactionInCiviCRM(userEmail string, userAPIKey string, transID str
 		return errors.New("authentication failed - api keys do not match")
 	}
 
-	/*
-				ccInfo struct {
-				Name   string `json:"name"`
-				Cc     string `json:"cc"`
-				Exp    string `json:"exp"`
-		*		Amount string `json:"amount"`
-		++	Email string `json:"email"`
-		++	ApiKey string `json:"apikey"`
-			}
-	*/
-
 	// transactionInfo struct to put into CiviCRM
 	var transactionInfo struct {
 		FinancialTypeId string `json:"financial_type_id"`
 		TotalAmount     string `json:"total_amount"`
 		ContactId       string `json:"contact_id"`
 		TrxnId          string `json:"trxn_id"`
+		// make edit here to store more/different information in CiviCRM
 	}
 	transactionInfo.FinancialTypeId = "Donation"
 	transactionInfo.TotalAmount = amount
@@ -247,7 +248,9 @@ func recordTransactionInCiviCRM(userEmail string, userAPIKey string, transID str
 		Error int `json:"is_error"`
 	}
 
-	if err = queryCiviCRM(*v, &infoPutResp); err != nil || infoPutResp.Error != 0 {
+	if err = queryCiviCRM(*v, &infoPutResp); err != nil {
+		return err
+	} else if infoPutResp.Error != 0 {
 		return errors.New("error querying CiviCRM")
 	}
 

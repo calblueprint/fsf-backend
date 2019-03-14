@@ -3,11 +3,14 @@ package main
 // NOT WORKING
 
 import (
+	"os"
 	"testing"
 )
 
 func TestGetAPIKey(t *testing.T) {
 	testEmail := "tonyyanga@gmail.com"
+	siteKey = os.Getenv("SITEKEY")
+	adminAPIKey = os.Getenv("ADMINAPIKEY")
 	apiKey, contactId, err := getAPIKey(testEmail)
 	if err != nil {
 		t.Error(err.Error())

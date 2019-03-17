@@ -1,6 +1,9 @@
 package main
 
-// NOT WORKING
+/*
+ * NOT WORKING on local Macs
+ * only works when run from root@fsfmobile0p.fsf.org
+ */
 
 import (
 	"os"

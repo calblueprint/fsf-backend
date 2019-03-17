@@ -207,7 +207,6 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 // records transaction in CiviCRM
 func recordTransactionInCiviCRM(userEmail string, userAPIKey string, transID string, amount string) error {
 	// record this transaction in CiviCRM
-	log.Printf(userEmail)
 	civiCRMAPIKey, userContactId, err := getAPIKey(userEmail)
 	if err != nil {
 		log.Println(err.Error())

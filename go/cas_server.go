@@ -167,13 +167,6 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 				AuthCode string `json:"authcode"`
 			}
 	*/
-	/*
-		DUMMY saleResp FOR TESTING REMOVE LATER
-
-		saleResp.TransID = "hello"
-		saleResp.Status = "approved"
-		saleResp.AuthCode = "world"
-	*/
 
 	if saleResp.Status != "approved" {
 		log.Println(err.Error())

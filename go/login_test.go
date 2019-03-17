@@ -9,6 +9,8 @@ import (
 
 func TestGetAPIKey(t *testing.T) {
 	testEmail := "tonyyanga@gmail.com"
+	tcUsername = os.Getenv("TCUSERNAME")
+	tcPassword = os.Getenv("TCPASSWORD")
 	siteKey = os.Getenv("SITEKEY")
 	adminAPIKey = os.Getenv("ADMINAPIKEY")
 	apiKey, contactId, err := getAPIKey(testEmail)

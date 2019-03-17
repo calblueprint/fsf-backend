@@ -1,6 +1,9 @@
 package main
 
-// NOT WORKING
+/*
+* NOT WORKING on local Macs
+* only works when run from root@fsfmobile0p.fsf.org
+ */
 
 import (
 	"bytes"
@@ -38,6 +41,9 @@ func TestHandleRegisterCC(t *testing.T) {
 func TestHandlePayment(t *testing.T) {
 	tcUsername = os.Getenv("TCUSERNAME")
 	tcPassword = os.Getenv("TCPASSWORD")
+	siteKey = os.Getenv("SITEKEY")
+	adminAPIKey = os.Getenv("ADMINAPIKEY")
+
 	prePayload := []byte(`{"name": "John Smith", "cc": "4111111111111111", "exp": "0404", "email": "test@test.com", "apikey": ""}`)
 	payLoad := bytes.NewBuffer(prePayload)
 

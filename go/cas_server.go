@@ -211,7 +211,9 @@ func recordTransactionInCiviCRM(userEmail string, userAPIKey string, transID str
 	if err != nil {
 		log.Println(err.Error())
 		return errors.New("error retrieving contact info from CiviCRM")
-	} else if !reflect.DeepEqual(userAPIKey, civiCRMAPIKey) {
+	}
+
+	if !reflect.DeepEqual(userAPIKey, civiCRMAPIKey) {
 		return errors.New("authentication failed - api keys do not match")
 	}
 

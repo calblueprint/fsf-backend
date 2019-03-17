@@ -152,8 +152,6 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// log.Printf("STEP 0")
-
 	mgr := NewTransactionMgr(tcUsername, tcPassword)
 	saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
 	if err != nil {
@@ -177,7 +175,6 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		saleResp.AuthCode = "world"
 	*/
 
-	// log.Printf("STEP 1")
 	if saleResp.Status != "approved" {
 		log.Println(err.Error())
 		writeError(w, "transaction not successfully approved")

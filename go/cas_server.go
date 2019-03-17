@@ -172,6 +172,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		log.Println(err.Error())
 		writeError(w, "transaction not successfully approved")
 		return
+
 	} else {
 		/*
 				ccInfo struct {
@@ -184,6 +185,12 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 				}
 		*/
 		err := recordTransactionInCiviCRM(ccInfo.Email, ccInfo.ApiKey, saleResp.TransID, ccInfo.Amount)
+		/*
+			TODO:
+			Prevent scenario of payment made, but transaction recorded wrongly; implement either:
+				1. retry
+				2. separate logs for these scenarios that require admin attention
+		*/
 		if err != nil {
 			log.Println(err.Error())
 			writeError(w, err.Error())

@@ -1,5 +1,10 @@
 package main
 
+/*
+* NOT WORKING on local Macs
+* only works when run from root@fsfmobile0p.fsf.org
+ */
+
 import (
 	"bytes"
 	"net/http"
@@ -18,6 +23,31 @@ func TestHandleRegisterCC(t *testing.T) {
 	payLoad := bytes.NewBuffer(prePayload)
 
 	request, err := http.NewRequest("POST", "/payment/register", payLoad)
+
+	if err == nil {
+		handler := http.HandlerFunc(handleRegisterCC)
+		response := httptest.NewRecorder()
+		handler.ServeHTTP(response, request)
+
+		if response.Code != 200 {
+			t.Errorf("/payment/register FAILED")
+			// t.Errorf("%i", response.Code)
+		}
+	} else {
+		t.Errorf(err.Error())
+	}
+}
+
+func TestHandlePayment(t *testing.T) {
+	tcUsername = os.Getenv("TCUSERNAME")
+	tcPassword = os.Getenv("TCPASSWORD")
+	siteKey = os.Getenv("SITEKEY")
+	adminAPIKey = os.Getenv("ADMINAPIKEY")
+
+	prePayload := []byte(`{"name": "John Smith", "cc": "4111111111111111", "exp": "0404", "email": "test@test.com", "apikey": ""}`)
+	payLoad := bytes.NewBuffer(prePayload)
+
+	request, err := http.NewRequest("POST", "/payment/pay", payLoad)
 
 	if err == nil {
 		handler := http.HandlerFunc(handleRegisterCC)

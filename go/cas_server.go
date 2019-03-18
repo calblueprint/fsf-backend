@@ -2,9 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"log"
 	"net/http"
+	"net/url"
+	"reflect"
 )
 
 var tcUsername, tcPassword string
@@ -33,10 +36,30 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 	var ccInfo struct {
 		BillingID string `json:"billingid"`
 		Amount    string `json:"amount"`
+		Email     string `json:"email"`
+		ApiKey    string `json:"apikey"`
 	}
 
 	if err := dec.Decode(&ccInfo); err != nil {
 		writeError(w, "Cannot parse request body correctly")
+		return
+	}
+
+	// input validation
+	var err error
+	if ccInfo.BillingID == "" {
+		err = errors.New("missing billing id field")
+	} else if ccInfo.Amount == "" {
+		err = errors.New("missing amount field")
+	} else if ccInfo.Email == "" {
+		err = errors.New("missing email field")
+	} else if ccInfo.ApiKey == "" {
+		err = errors.New("missing apiKey field")
+	}
+
+	if err != nil {
+		log.Println(err.Error())
+		writeError(w, err.Error())
 		return
 	}
 
@@ -47,6 +70,19 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 		log.Println(err.Error())
 		writeError(w, "Payment failed")
 		return
+	}
+
+	if saleResp.Status != "approved" {
+		log.Println(err.Error())
+		writeError(w, "transaction not successfully approved")
+		return
+	} else {
+		err := recordTransactionInCiviCRM(ccInfo.Email, ccInfo.ApiKey, saleResp.TransID, ccInfo.Amount)
+		if err != nil {
+			log.Println(err.Error())
+			writeError(w, err.Error())
+			return
+		}
 	}
 
 	// write billing id back in response
@@ -84,27 +120,140 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		Cc     string `json:"cc"`
 		Exp    string `json:"exp"`
 		Amount string `json:"amount"`
+		Email  string `json:"email"`
+		ApiKey string `json:"apikey"`
 	}
 
 	if err := dec.Decode(&ccInfo); err != nil {
+		log.Println(err.Error())
 		writeError(w, "Cannot parse request body correctly")
+		return
+	}
+
+	// input validation
+	var err error
+	if ccInfo.Name == "" {
+		err = errors.New("missing name field")
+	} else if ccInfo.Cc == "" {
+		err = errors.New("missing cc field")
+	} else if ccInfo.Exp == "" {
+		err = errors.New("missing exp field")
+	} else if ccInfo.Amount == "" {
+		err = errors.New("missing amount field")
+	} else if ccInfo.Email == "" {
+		err = errors.New("missing email field")
+	} else if ccInfo.ApiKey == "" {
+		err = errors.New("missing apiKey field")
+	}
+
+	if err != nil {
+		log.Println(err.Error())
+		writeError(w, err.Error())
 		return
 	}
 
 	mgr := NewTransactionMgr(tcUsername, tcPassword)
 	saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
-
 	if err != nil {
 		log.Println(err.Error())
 		writeError(w, "Payment failed")
 		return
 	}
 
+	/*
+		var TCSaleResp struct {
+				TransID  string `json:"transid"`
+				Status   string `json:"status"`
+				AuthCode string `json:"authcode"`
+			}
+	*/
+
+	if saleResp.Status != "approved" {
+		log.Println(err.Error())
+		writeError(w, "transaction not successfully approved")
+		return
+
+	} else {
+		/*
+				ccInfo struct {
+					Name   string `json:"name"`
+					Cc     string `json:"cc"`
+					Exp    string `json:"exp"`
+			*		Amount string `json:"amount"`
+			++	Email string `json:"email"`
+			++	ApiKey string `json:"apikey"`
+				}
+		*/
+		err := recordTransactionInCiviCRM(ccInfo.Email, ccInfo.ApiKey, saleResp.TransID, ccInfo.Amount)
+		/*
+			TODO:
+			Prevent scenario of payment made, but transaction recorded wrongly; implement either:
+				1. retry
+				2. separate logs for these scenarios that require admin attention
+		*/
+		if err != nil {
+			log.Println(err.Error())
+			writeError(w, err.Error())
+			return
+		}
+	}
+
 	// write billing id back in response
 	enc := json.NewEncoder(w)
-
 	// see TCSaleResp struct for json response struct
 	enc.Encode(saleResp)
+}
+
+// records transaction in CiviCRM
+func recordTransactionInCiviCRM(userEmail string, userAPIKey string, transID string, amount string) error {
+	// record this transaction in CiviCRM
+	civiCRMAPIKey, userContactId, err := getAPIKey(userEmail)
+	if err != nil {
+		log.Println(err.Error())
+		return errors.New("error retrieving contact info from CiviCRM")
+	}
+
+	if !reflect.DeepEqual(userAPIKey, civiCRMAPIKey) {
+		return errors.New("authentication failed - api keys do not match")
+	}
+
+	// transactionInfo struct to put into CiviCRM
+	var transactionInfo struct {
+		FinancialTypeId string `json:"financial_type_id"`
+		TotalAmount     string `json:"total_amount"`
+		ContactId       string `json:"contact_id"`
+		TrxnId          string `json:"trxn_id"`
+		// make edit here to store more/different information in CiviCRM
+	}
+	transactionInfo.FinancialTypeId = "Donation"
+	transactionInfo.TotalAmount = amount
+	transactionInfo.ContactId = userContactId
+	transactionInfo.TrxnId = transID
+
+	infoJson, err := json.Marshal(transactionInfo)
+	if err != nil {
+		log.Println(err.Error())
+		return errors.New("error constructing infoJson for civicrm from transactionInfo")
+	}
+
+	v := &url.Values{}
+	v.Add("entity", "Contribution")
+	v.Add("action", "create")
+	v.Add("api_key", adminAPIKey)
+	v.Add("key", siteKey)
+	v.Add("json", string(infoJson))
+
+	var infoPutResp struct {
+		Error int `json:"is_error"`
+	}
+
+	if err = queryCiviCRM(*v, &infoPutResp); err != nil {
+		return err
+	} else if infoPutResp.Error != 0 {
+		return errors.New("error querying CiviCRM")
+	}
+
+	return nil
 }
 
 // handles a request to store credit card info for repeating payments

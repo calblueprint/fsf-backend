@@ -12,8 +12,8 @@ namespace :db do
         parse_rss(source.rss_url)
       elsif source.twitter?
         parse_twitter(source)
-      elsif source.twitter?
-        parse_twitter(source)
+      elsif source.GNUsocial?
+        parse_GNUsocial(source)
       else
         puts "Unknown source type #{source.source_type}\n"
       end
@@ -22,6 +22,16 @@ namespace :db do
     puts DateTime.now
   end
 end
+
+def parse_GNUsocial(source, num)
+  response = HTTParty.get(source)
+  puts response
+end
+
+# def parse_notice(notice)
+# end
+# def parse_status(status)
+# end
 
 def parse_twitter(source)
   client = source.get_twitter_client

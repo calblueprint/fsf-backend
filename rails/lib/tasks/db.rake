@@ -25,7 +25,8 @@ end
 
 def parse_GNUsocial(source, num)
   response = HTTParty.get(source)
-  puts response
+  jsonResponse = Oj.dump(response)
+  puts jsonResponse
 end
 
 # def parse_notice(notice)

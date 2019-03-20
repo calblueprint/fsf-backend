@@ -10,6 +10,11 @@ Things you may want to cover:
   - Rails 5.2.1
 - System dependencies
 
+- Ruby Linter
+
+  - command: ./node_modules/.bin/prettier --write /your/file
+  - https://github.com/prettier/plugin-ruby
+
 - Configuration
 
 - Database creation

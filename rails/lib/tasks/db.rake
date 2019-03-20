@@ -5,11 +5,13 @@
 #  parsing the feed item with feedjira and nokogiri
 
 namespace :db do
-  desc "Updates FSF News Table by querying FSF News RSS Feed"
+  desc 'Updates FSF News Table by querying FSF News RSS Feed'
   task updateNews: :environment do
     Source.all.each do |source|
       if source.rss?
         parse_rss(source.rss_url)
+      elsif source.twitter?
+        parse_twitter(source)
       elsif source.twitter?
         parse_twitter(source)
       else
@@ -22,7 +24,7 @@ namespace :db do
 end
 
 def parse_twitter(source)
-  client = source.get_twitter_client()
+  client = source.get_twitter_client
 
   # for now, just get the latest 20 tweets
   # TODO: long term solution
@@ -35,12 +37,14 @@ end
 
 def parse_tweet(tweet)
   unless Tweet.exists?(tweet.id)
-    Tweet.create({
-      :id => tweet.id,
-      :date => tweet.created_at,
-      :url => tweet.uri,
-      :text => tweet.full_text
-    })
+    Tweet.create(
+      {
+        id: tweet.id,
+        date: tweet.created_at,
+        url: tweet.uri,
+        text: tweet.full_text
+      }
+    )
   else
     puts "Existing tweet #{tweet.id}"
   end
@@ -48,35 +52,29 @@ end
 
 def parse_rss(url)
   Feedjira.configure do |config|
-    config.parsers = [
-      Feedjira::Parser::RSS
-    ]
+    config.parsers = [Feedjira::Parser::RSS]
     config.strip_whitespace = true
   end
 
   feed = Feedjira::Feed.fetch_and_parse url
 
   entries = feed.entries
-  entries.each do |entry|
-    parse_rss_entry(entry)
-  end
+  entries.each { |entry| parse_rss_entry(entry) }
 end
 
 def parse_rss_entry(entry)
   articleInDB = Article.find_by title: entry.title
-  if(!articleInDB)
-    html_doc = Nokogiri::HTML(entry.content)
+  if (!articleInDB)
+    html_doc = Nokogiri.HTML(entry.content)
     paragraph_list = html_doc.css('p')
     paragraph_item = paragraph_list.first.text
 
     #  This regex splits the incoming paragraph by periods
     sentence_list = paragraph_item.split(/(?<=(?<=[a-zA-Z])[a-zA-Z])\./)
-    sentence_list.delete_if{|el| el.length == 0}
+    sentence_list.delete_if { |el| el.length == 0 }
     summary_from_content = sentence_list.first
     summary_format = summary_from_content.split.join(' ')
-    if summary_format
-      summary_from_content = summary_format
-    end
+    summary_from_content = summary_format if summary_format
     #  This regex specifically partitions a sentence to exclude the first
     #  sentence of the content paragraph which has the general form of
     #  BOSTON, Massachusetts, USA -- Thursday, October 18, 2018 --

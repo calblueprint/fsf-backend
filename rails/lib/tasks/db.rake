@@ -13,7 +13,7 @@ namespace :db do
       elsif source.twitter?
         parse_twitter(source)
       elsif source.GNUsocial?
-        parse_GNUsocial(source)
+        parse_GNUsocial(source.GNU_social_url)
       else
         puts "Unknown source type #{source.source_type}\n"
       end
@@ -23,7 +23,8 @@ namespace :db do
   end
 end
 
-def parse_GNUsocial(source, num)
+def parse_GNUsocial(source)
+  puts source
   response = HTTParty.get(source)
   jsonResponse = Oj.dump(response)
   puts jsonResponse

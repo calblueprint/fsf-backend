@@ -35,6 +35,17 @@ ActiveRecord::Schema.define(version: 2019_03_21_022106) do
     t.string "link"
   end
 
+  create_table "notices", force: :cascade do |t|
+    t.string "gs_user_id"
+    t.string "gs_user_name"
+    t.datetime "published"
+    t.string "content_text"
+    t.string "content_html"
+    t.string "url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "petitions", force: :cascade do |t|
     t.string "title"
     t.string "description"

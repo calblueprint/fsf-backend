@@ -1,3 +1,4 @@
 {
-  "preferSingleQuotes": true
+  "preferSingleQuotes": true,
+  "printWidth": 90
 }

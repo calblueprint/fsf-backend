@@ -12,7 +12,7 @@ Things you may want to cover:
 
 - Ruby Linter
 
-  - command: ./node_modules/.bin/prettier --write /your/file
+  - command: ./lint
   - https://github.com/prettier/plugin-ruby
 
 - Configuration

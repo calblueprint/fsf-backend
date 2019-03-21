@@ -25,15 +25,71 @@ end
 
 def parse_GNUsocial(source)
   puts source
-  response = HTTParty.get(source)
-  jsonResponse = Oj.dump(response)
-  puts jsonResponse
+  #generator
+  #title
+  #totalItems
+  #items
+  #links
+  #title
+  response = RestClient.get source, { accept: :json }
+  responseBody = JSON.parse(response.body)
+  responseKeys = JSON.parse(response.body).keys
+  links = responseBody['links']
+  notices = responseBody['items']
+  #TODO: throttle queries to not overwhelm GNU social endpoint
+  notices.each do |notice|
+    parse_notice(notice)
+    puts "#{notice['url']}"
+  end
+  puts JSON.pretty_generate(links)
+  puts 'here are my pretty links'
 end
 
-# def parse_notice(notice)
-# end
-# def parse_status(status)
-# end
+def parse_notice(notice)
+  notice_id = notice['object']['status_net']['notice_id']
+  notice_detail_url = "https://status.fsf.org/api/statuses/show/#{notice_id}.json"
+  response = RestClient.get notice_detail_url
+  notice_details = JSON.parse(response.body)
+  notice_details_keys = JSON.parse(response.body).keys
+  #fields to extract
+  #notice_id
+  #gs_user_id
+  #gs_user_name
+  #published
+  #content_text
+  #content_html
+  #url
+
+  gs_user_id = notice['actor']['status_net']['profile_info']['local_id']
+  puts "this is the gs_user_id #{gs_user_id}"
+  gs_user_name = notice['actor']['displayName']
+  puts "this is the gs_user_name #{gs_user_name}"
+  puts "this is the notice_id #{notice_id}"
+  published = notice['published']
+  puts "this is the date it was published #{published}"
+  content_text = notice_details['text']
+  puts "this is the text #{content_text}"
+  content_html = notice_details['statusnet_html']
+  puts "this was the statusnet_html #{content_html}"
+  url = notice['url']
+  puts "this is the url to the individual notice #{url}"
+  puts "these are the keys of notice_details #{notice_details_keys}"
+  unless Notice.exists?(notice_id)
+    Notice.create(
+      {
+        id: notice_id,
+        gs_user_id: gs_user_id,
+        gs_user_name: gs_user_name,
+        published: published,
+        content_text: content_text,
+        content_html: content_html,
+        url: url
+      }
+    )
+  else
+    puts "Existing Notice #{notice_id}"
+  end
+end
 
 def parse_twitter(source)
   client = source.get_twitter_client
@@ -50,12 +106,7 @@ end
 def parse_tweet(tweet)
   unless Tweet.exists?(tweet.id)
     Tweet.create(
-      {
-        id: tweet.id,
-        date: tweet.created_at,
-        url: tweet.uri,
-        text: tweet.full_text
-      }
+      { id: tweet.id, date: tweet.created_at, url: tweet.uri, text: tweet.full_text }
     )
   else
     puts "Existing tweet #{tweet.id}"

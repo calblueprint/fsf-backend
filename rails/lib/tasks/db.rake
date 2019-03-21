@@ -13,7 +13,7 @@ namespace :db do
       elsif source.twitter?
         parse_twitter(source)
       elsif source.GNUsocial?
-        parse_GNUsocial(source.GNU_social_url)
+        parse_GNUsocial(source.GNU_social_url, 2)
       else
         puts "Unknown source type #{source.source_type}\n"
       end
@@ -23,71 +23,76 @@ namespace :db do
   end
 end
 
-def parse_GNUsocial(source)
-  puts source
-  #generator
-  #title
-  #totalItems
-  #items
-  #links
-  #title
+def parse_GNUsocial(source, limit)
+  puts "This is the GNU social timeline we are sourcing #{source}"
+  puts "This will obtain #{limit} page(s) of results from the GNU social time line"
+  limit_num = limit
   response = RestClient.get source, { accept: :json }
   responseBody = JSON.parse(response.body)
-  responseKeys = JSON.parse(response.body).keys
   links = responseBody['links']
   notices = responseBody['items']
-  #TODO: throttle queries to not overwhelm GNU social endpoint
-  notices.each do |notice|
-    parse_notice(notice)
-    puts "#{notice['url']}"
+  if links.length > 1
+    while (links.length > 1) && (links[1]['rel']['rel'] == 'next') && (limit_num > 0)
+      notices.each do |notice|
+        if(notice["object"]["objectType"] == "note")
+          parse_notice(notice)
+          puts "#{notice['url']}"
+        else
+          puts "\n#{notice['url']} is not a note but a #{notice["object"]["objectType"]} object\n"
+        end
+      end
+      puts links[1]['url']
+      puts 'next url'
+      response = RestClient.get links[1]['url'], { accept: :json }
+      puts "status code #{response.code}"
+      responseBody = JSON.parse(response.body)
+      links = responseBody['links']
+      notices = responseBody['items']
+      limit_num = limit_num - 1
+      puts "There are #{limit_num} requests left"
+      puts JSON.pretty_generate(links)
+    end
+  else
+    notices.each do |notice|
+      parse_notice(notice)
+      puts "#{notice['url']}"
+    end
+    puts JSON.pretty_generate(links)
   end
-  puts JSON.pretty_generate(links)
-  puts 'here are my pretty links'
 end
 
 def parse_notice(notice)
   notice_id = notice['object']['status_net']['notice_id']
   notice_detail_url = "https://status.fsf.org/api/statuses/show/#{notice_id}.json"
-  response = RestClient.get notice_detail_url
-  notice_details = JSON.parse(response.body)
-  notice_details_keys = JSON.parse(response.body).keys
-  #fields to extract
-  #notice_id
-  #gs_user_id
-  #gs_user_name
-  #published
-  #content_text
-  #content_html
-  #url
-
-  gs_user_id = notice['actor']['status_net']['profile_info']['local_id']
-  puts "this is the gs_user_id #{gs_user_id}"
-  gs_user_name = notice['actor']['displayName']
-  puts "this is the gs_user_name #{gs_user_name}"
-  puts "this is the notice_id #{notice_id}"
-  published = notice['published']
-  puts "this is the date it was published #{published}"
-  content_text = notice_details['text']
-  puts "this is the text #{content_text}"
-  content_html = notice_details['statusnet_html']
-  puts "this was the statusnet_html #{content_html}"
-  url = notice['url']
-  puts "this is the url to the individual notice #{url}"
-  puts "these are the keys of notice_details #{notice_details_keys}"
-  unless Notice.exists?(notice_id)
-    Notice.create(
-      {
-        id: notice_id,
-        gs_user_id: gs_user_id,
-        gs_user_name: gs_user_name,
-        published: published,
-        content_text: content_text,
-        content_html: content_html,
-        url: url
-      }
-    )
+  response = RestClient.get(notice_detail_url) { |response, request, result| response }
+  if response.code == 200
+    notice_details = JSON.parse(response.body)
+    gs_user_id = notice['actor']['status_net']['profile_info']['local_id']
+    gs_user_name = notice['actor']['displayName']
+    published = notice['published']
+    content_text = notice_details['text']
+    content_html = notice_details['statusnet_html']
+    url = notice['url']
+    unless Notice.exists?(notice_id)
+      Notice.create(
+        {
+          id: notice_id,
+          gs_user_id: gs_user_id,
+          gs_user_name: gs_user_name,
+          published: published,
+          content_text: content_text,
+          content_html: content_html,
+          url: url
+        }
+      )
+    else
+      puts "Existing Notice #{notice_id}"
+    end
   else
-    puts "Existing Notice #{notice_id}"
+    puts "This is the url #{notice_detail_url}"
+    puts "Notice #{notice_id} details do not exist"
+    puts "the following url failed https://status.fsf.org/api/statuses/show/#{notice_id}.json"
+    puts "Response code was #{response.code}\n"
   end
 end
 

@@ -54,17 +54,12 @@ func validateToken(token string) (bool, string, error) {
 	}
 
 	if err := dec.Decode(&r); err != nil {
-<<<<<<< HEAD
-		return false, "", fmt.Errorf("Failure parsing CAS validate response")
-=======
 		log.Print("Failure parsing CAS validate response")
-		return false, "", err 
->>>>>>> 92490fdca19dac498bdb90b8e6aee2baa2521ae9
+		return false, "", err
 	}
 
 	return true, r.AuthSuccess.Attributes.Email, nil
 }
-<<<<<<< HEAD
 
 // A helper function to query CiviCRM
 // @param
@@ -185,5 +180,3 @@ func getAPIKey(id string) (string, string, error) {
 
 	return newAPIKey, contactId, nil
 }
-=======
->>>>>>> 92490fdca19dac498bdb90b8e6aee2baa2521ae9

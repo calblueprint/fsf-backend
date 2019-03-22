@@ -37,6 +37,9 @@ gem 'feedjira'
 #Nokogiri (鋸) is a Rubygem providing HTML, XML, SAX, and Reader parsers with XPath and CSS selector support. http://nokogiri.org/
 gem 'nokogiri'
 
+#Simple HTTP and REST client for Ruby, inspired by microframework syntax for specifying actions. https://github.com/rest-client/rest-client
+gem 'rest-client'
+
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 4.0'
 # Use ActiveModel has_secure_password

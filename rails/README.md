@@ -10,6 +10,11 @@ Things you may want to cover:
   - Rails 5.2.1
 - System dependencies
 
+- Ruby Linter
+
+  - command: ./lint
+  - https://github.com/prettier/plugin-ruby
+
 - Configuration
 
 - Database creation

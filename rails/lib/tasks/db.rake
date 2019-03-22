@@ -31,32 +31,24 @@ def parse_GNUsocial(source, limit)
   responseBody = JSON.parse(response.body)
   links = responseBody['links']
   notices = responseBody['items']
-  if links.length > 1
-    while (links.length > 1) && (links[1]['rel']['rel'] == 'next') && (limit_num > 0)
-      notices.each do |notice|
-        if(notice["object"]["objectType"] == "note")
-          parse_notice(notice)
-          puts "#{notice['url']}"
-        else
-          puts "\n#{notice['url']} is not a note but a #{notice["object"]["objectType"]} object\n"
-        end
-      end
-      puts links[1]['url']
-      puts 'next url'
-      response = RestClient.get links[1]['url'], { accept: :json }
-      puts "status code #{response.code}"
-      responseBody = JSON.parse(response.body)
-      links = responseBody['links']
-      notices = responseBody['items']
-      limit_num = limit_num - 1
-      puts "There are #{limit_num} requests left"
-      puts JSON.pretty_generate(links)
-    end
-  else
+  while (links.length > 1) && (links[1]['rel']['rel'] == 'next') && (limit_num > 0)
     notices.each do |notice|
-      parse_notice(notice)
-      puts "#{notice['url']}"
+      if (notice['object']['objectType'] == 'note')
+        parse_notice(notice)
+        puts "#{notice['url']}"
+      else
+        puts "\n#{notice['url']} is not a note but a #{notice['object']['objectType']} object\n"
+      end
     end
+    puts links[1]['url']
+    puts 'next url'
+    response = RestClient.get links[1]['url'], { accept: :json }
+    puts "status code #{response.code}"
+    responseBody = JSON.parse(response.body)
+    links = responseBody['links']
+    notices = responseBody['items']
+    limit_num = limit_num - 1
+    puts "There are #{limit_num} requests left"
     puts JSON.pretty_generate(links)
   end
 end
@@ -110,9 +102,7 @@ end
 
 def parse_tweet(tweet)
   unless Tweet.exists?(tweet.id)
-    Tweet.create(
-      { id: tweet.id, date: tweet.created_at, url: tweet.uri, text: tweet.full_text }
-    )
+    Tweet.create({ id: tweet.id, date: tweet.created_at, url: tweet.uri, text: tweet.full_text })
   else
     puts "Existing tweet #{tweet.id}"
   end
@@ -149,9 +139,7 @@ def parse_rss_entry(entry)
     #  This will be included until the description portion of the
     #  RSS newsfeed has a deterministic non-null value
     summary_parser = summary_from_content.partition(/\, \d{4} (?:[^A-Za-z]{2})/)
-    if (not summary_parser[2].empty?)
-      summary_from_content = summary_parser[2].split.join(' ')
-    end
+    summary_from_content = summary_parser[2].split.join(' ') if (not summary_parser[2].empty?)
     article_params = {
       title: entry.title,
       link: entry.id,

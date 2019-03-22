@@ -13,6 +13,7 @@ class Notice < ApplicationRecord
   validates :id, presence:true
   validates :gs_user_id, presence:true
   validates :gs_user_name, presence:true
+  validates :gs_user_handle, presence:true
   validates :published, presence:true
   validates :content_text, presence:true
   validates :content_html, presence:true

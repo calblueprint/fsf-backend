@@ -65,16 +65,19 @@ def parse_notice(notice)
     notice_details = JSON.parse(response.body)
     gs_user_id = notice['actor']['status_net']['profile_info']['local_id']
     gs_user_name = notice['actor']['displayName']
+    gs_user_handle = notice['actor']['portablecontacts_net']['preferredUsername']
     published = notice['published']
     content_text = notice_details['text']
     content_html = notice_details['statusnet_html']
     url = notice['url']
+    puts "This notice is from @#{gs_user_handle}"
     unless Notice.exists?(notice_id)
       Notice.create(
         {
           id: notice_id,
           gs_user_id: gs_user_id,
           gs_user_name: gs_user_name,
+          gs_user_handle: gs_user_handle,
           published: published,
           content_text: content_text,
           content_html: content_html,

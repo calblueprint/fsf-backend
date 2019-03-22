@@ -124,7 +124,7 @@ func getAPIKey(id string) (string, string, error) {
 
 	idQueryJson, err := json.Marshal(idQuery)
 	if err != nil {
-		log.Fatal("Error constructing query json for civicrm")
+		log.Log("Error constructing query json for civicrm")
 		return "", "", err
 	}
 

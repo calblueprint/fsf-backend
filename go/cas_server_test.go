@@ -1,8 +1,9 @@
 package main
 
 /*
-* NOT WORKING on local Macs
-* only works when run from root@fsfmobile0p.fsf.org
+ * NOT WORKING on local Macs
+ * only works when run from root@fsfmobile0p.fsf.org
+ * Set environment variables: TCUSERNAME="your_tc_username" TCPASSWORD="your_tc_password"
  */
 
 import (
@@ -12,8 +13,6 @@ import (
 	"os"
 	"testing"
 )
-
-// Set environment variables: TCUSERNAME="your_tc_username" TCPASSWORD="your_tc_password"
 
 // Test /payment/register endpoint
 func TestHandleRegisterCC(t *testing.T) {

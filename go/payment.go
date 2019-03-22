@@ -22,6 +22,13 @@ type TCSaleResp struct {
 	AuthCode string `json:"authcode"`
 }
 
+type TCVerifyResp struct {
+	TransID  string `json:"transid"`
+	Status   string `json:"status"`
+	AuthCode string `json:"authcode"`
+	Avs      string `json:"avs"`
+}
+
 func NewTransactionMgr(custId, password string) *TransactionMgr {
 	return &TransactionMgr{
 		CustId:   custId,
@@ -224,3 +231,94 @@ func (mgr *TransactionMgr) createBillingId(name, ccNumber, expiry, zip string) (
 
 	return billingId, nil
 }
+
+// COMMENTED OUT INCOMPLETE VERIFICATION FUNCTIONS
+/*
+func (mgr *TransactionMgr) verifyAddress(action, ccNumber, expiry, amount string) (*TCSaleResp, error) {
+}
+*/
+
+/*
+// return transaction status struct, err
+func (mgr *TransactionMgr) verifyCard(action, ccNumber, expiry, cvv string) (*TCSaleResp, error) {
+	// malloc a C array of char*
+	mapSize := 8 //DIFF 1: mapSize
+
+	cKeyArray := C.malloc(C.size_t(C.int(mapSize)) * C.size_t(unsafe.Sizeof(uintptr(0))))
+	cValueArray := C.malloc(C.size_t(C.int(mapSize)) * C.size_t(unsafe.Sizeof(uintptr(0))))
+
+	defer C.free(cKeyArray)
+	defer C.free(cValueArray)
+
+	// convert C array to go slice for addressing
+	keys := cArrayToSlice(cKeyArray, mapSize)
+	values := cArrayToSlice(cValueArray, mapSize)
+
+	// set parameters
+	keys[0] = C.CString("custid")
+	values[0] = C.CString(mgr.CustId)
+
+	keys[1] = C.CString("password")
+	values[1] = C.CString(mgr.Password)
+
+	keys[2] = C.CString("action")
+	values[2] = C.CString("verify") // DIFF 2: action is verify
+
+	keys[3] = C.CString("name")
+	values[3] = C.CString(name)
+
+	keys[4] = C.CString("cc")
+	values[4] = C.CString(ccNumber)
+
+	keys[5] = C.CString("exp")
+	values[5] = C.CString(expiry)
+
+	keys[6] = C.CString("cvv")
+	values[6] = C.CString(cvv)
+
+	keys[7] = C.CString("verify")
+	values[7] = C.CString("y")
+
+	for i := 0; i < mapSize; i++ {
+		defer C.free(unsafe.Pointer(keys[i]))
+		defer C.free(unsafe.Pointer(values[i]))
+	}
+
+	// allocate buffer for return value
+	buf := C.malloc(C.sizeof_char * 1024)
+	defer C.free(buf)
+
+	return mgr.createVerifyCardHelper((**C.char)(cKeyArray), (**C.char)(cValueArray), mapSize,
+		(*C.char)(buf), 1024)
+}
+*/
+/*
+func (mgr *TransactionMgr) createVerifyCardHelper(cKeyArray **C.char, cValueArray **C.char, mapSize int, dest *C.char, bufSize int) (*TCSaleResp, error) {
+	resp, respMap, err := mgr.TCTransactionHelper(cKeyArray, cValueArray, mapSize, dest, bufSize)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var tcResp TCVerifyResp
+	var ok bool
+
+	tcResp.TransID, ok = respMap["transid"]
+	if !ok {
+		return nil, fmt.Errorf("transid is not found in response: %v", resp)
+	}
+	tcResp.Status, ok = respMap["status"]
+	if !ok {
+		return nil, fmt.Errorf("status is not found in response: %v", resp)
+	}
+	tcResp.AuthCode, ok = respMap["authcode"]
+	if !ok {
+		return nil, fmt.Errorf("authcode is not found in response: %v", resp)
+	}
+	tcResp.Avs, ok = respMap["avs"]
+	if !ok {
+		return nil, fmt.Errorf("avs is not found in response: %v", resp)
+	}
+	return &tcResp, nil
+}
+*/

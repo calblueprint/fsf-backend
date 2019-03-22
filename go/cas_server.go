@@ -298,7 +298,6 @@ func handleRegisterCC(w http.ResponseWriter, req *http.Request) {
 
 	mgr := NewTransactionMgr(tcUsername, tcPassword)
 	billingId, err := mgr.createBillingId(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Zip)
-
 	if err != nil {
 		log.Println(err.Error())
 		writeError(w, "Card registration failed")

@@ -24,13 +24,17 @@ namespace :db do
 end
 
 def parse_GNUsocial(source, limit)
-  puts "This is the GNU social timeline we are sourcing #{source}"
+  puts "This is the GNU social user_timeline we are sourcing #{source}"
   puts "This will obtain #{limit} page(s) of results from the GNU social time line"
-  limit_num = limit
   response = RestClient.get source, { accept: :json }
   responseBody = JSON.parse(response.body)
   links = responseBody['links']
   notices = responseBody['items']
+  parse_GNUsocial_pages(notices, links, limit)
+end
+
+def parse_GNUsocial_pages(notices, links, limit)
+  limit_num = limit
   while (links.length > 1) && (links[1]['rel']['rel'] == 'next') && (limit_num > 0)
     notices.each do |notice|
       if (notice['object']['objectType'] == 'note')

@@ -1,15 +1,10 @@
 package main
 
 import (
-	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 )
-
-var siteKey, adminAPIKey string
 
 // This function accepts a service token from the client, who obtains it from
 // CAS. It interacts with CAS server to validate the token.
@@ -59,11 +54,17 @@ func validateToken(token string) (bool, string, error) {
 	}
 
 	if err := dec.Decode(&r); err != nil {
+<<<<<<< HEAD
 		return false, "", fmt.Errorf("Failure parsing CAS validate response")
+=======
+		log.Print("Failure parsing CAS validate response")
+		return false, "", err 
+>>>>>>> 92490fdca19dac498bdb90b8e6aee2baa2521ae9
 	}
 
 	return true, r.AuthSuccess.Attributes.Email, nil
 }
+<<<<<<< HEAD
 
 // A helper function to query CiviCRM
 // @param
@@ -184,3 +185,5 @@ func getAPIKey(id string) (string, string, error) {
 
 	return newAPIKey, contactId, nil
 }
+=======
+>>>>>>> 92490fdca19dac498bdb90b8e6aee2baa2521ae9

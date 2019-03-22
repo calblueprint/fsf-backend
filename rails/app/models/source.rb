@@ -11,7 +11,7 @@
 # twitter_access_token           :string
 # twitter_access_token_secret    :string
 class Source < ApplicationRecord
-  enum source_type: %i[rss twitter]
+  enum source_type: %i[rss twitter GNUsocial]
 
   validates :source_type, presence:true
 

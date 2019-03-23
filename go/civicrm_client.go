@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -74,7 +75,7 @@ func getAPIKey(id string) (string, string, error) {
 
 	idQueryJson, err := json.Marshal(idQuery)
 	if err != nil {
-		log.Log("Error constructing query json for civicrm")
+		log.Println("Error constructing query json for civicrm")
 		return "", "", err
 	}
 

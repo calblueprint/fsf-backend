@@ -8,12 +8,15 @@ import (
 	"net/url"
 )
 
+// global variables to be set by users passing in env variables
 var siteKey, adminAPIKey string
 
-// A helper function to query CiviCRM
-// @param
-//   v: encoded CiviCRM REST query
-//   dest: an object where we store the decoded json object
+/*
+A helper function to query CiviCRM
+@param
+  v: encoded CiviCRM REST query
+  dest: an object where we store the decoded json object
+*/
 func queryCiviCRM(v url.Values, dest interface{}) error {
 	c := &http.Client{}
 	requestURL := "https://crmserver3d.fsf.org/sites/all/modules/civicrm/extern/rest.php"
@@ -40,12 +43,14 @@ func queryCiviCRM(v url.Values, dest interface{}) error {
 	return nil
 }
 
-// Retrieve the API key of the user identified by certain id string
-// @param id: id string from CAS (currently user's email)
-// @return:
-//   a string that is the API key
-//   a string that is the contact id in CiviCRM
-//   an error if any error occurs
+/*
+	Retrieve the API key of the user identified by certain id string
+	@param id: id string from CAS (currently user's email)
+	@return:
+	a string that is the API key
+	a string that is the contact id in CiviCRM
+	an error if any error occurs
+*/
 func getAPIKey(id string) (string, string, error) {
 	/** Because of the design of CiviCRM, API Key is only shown when we do an update
 	  i.e. a create with contact_id specified.
@@ -128,10 +133,12 @@ func getAPIKey(id string) (string, string, error) {
 	return newAPIKey, contactId, nil
 }
 
-// A helper function to validate a user apiKey that we get from the client
-// @param:
-//   apiKey: apiKey stored in frontend
-//   contactId: contactId of user
+/*
+	A helper function to validate a user apiKey that we get from the client
+	@param:
+	apiKey: apiKey stored in frontend
+	contactId: contactId of user
+*/
 func validateAPIKeyForUpdateRequests(apiKey string, contactId string) bool {
 	idQueryJSON := `{"id":"` + contactId + `"}`
 	v := &url.Values{}
@@ -158,6 +165,14 @@ func validateAPIKeyForUpdateRequests(apiKey string, contactId string) bool {
 	return false
 }
 
+/*
+	A helper function to get a user's info
+	@param:
+	apiKey: apiKey stored in frontend
+	contactId: contactId of user
+	@return:
+	userinfos struct, error
+*/
 func getUserInfo(apiKey string, contactId string) (*UserInfo, error) {
 	/** Because of the design of CiviCRM, API Key is only shown when we do an update
 	  i.e. a create with contact_id specified.
@@ -194,6 +209,14 @@ func getUserInfo(apiKey string, contactId string) (*UserInfo, error) {
 }
 
 // records transaction in CiviCRM
+/*
+	A helper function to gerecord a transaction in CiviCRM.
+	@param:
+	userEmail, userAPIKey, transID, amount
+	@return:
+	error
+	The function can be edited to store whatever information we want from a transaction
+*/
 func recordTransactionInCiviCRM(userEmail string, userAPIKey string, transID string, amount string) error {
 	// record this transaction in CiviCRM
 	civiCRMAPIKey, userContactId, err := getAPIKey(userEmail)
@@ -202,6 +225,7 @@ func recordTransactionInCiviCRM(userEmail string, userAPIKey string, transID str
 		return errors.New("error retrieving contact info from CiviCRM")
 	}
 
+	// validate API key received form the client with API key in CiviCRM
 	if !reflect.DeepEqual(userAPIKey, civiCRMAPIKey) {
 		return errors.New("authentication failed - api keys do not match")
 	}
@@ -214,6 +238,8 @@ func recordTransactionInCiviCRM(userEmail string, userAPIKey string, transID str
 		TrxnId          string `json:"trxn_id"`
 		// make edit here to store more/different information in CiviCRM
 	}
+
+	// this particular transaction is a donation
 	transactionInfo.FinancialTypeId = "Donation"
 	transactionInfo.TotalAmount = amount
 	transactionInfo.ContactId = userContactId

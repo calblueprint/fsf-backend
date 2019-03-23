@@ -31,8 +31,8 @@ CAS. It interacts with CAS server to validate the token.
 `payment.go` contains 6 helper functions:
 
 1. NewTransactionMgr creates and returns a new TransactionMgr
-2. createSaleFromCC
-3.
-4.
-5.
-6.
+2. createSaleFromCC creates a sale from a credit card number
+3. createSaleFromBillingID creates a sale from a billing id
+4. TCTransactionHelper returns a raw response string, parsed map, and err
+5. createSaleHelper creates and returns a transaction status struct
+6. createBillingId creates a billing Id from a transaction

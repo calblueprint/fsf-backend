@@ -16,12 +16,13 @@ It houses the code to interact with CiviCRM and TrustCommerce: accepting payment
 5. /user/info
 
 ### civicrm_client.go
-`civicrm_client.go` contains 4 helper functions:
+`civicrm_client.go` contains 5 helper functions:
 
 1. queryCiviCRM queries CiviCRM with an encoded REST query, and stores the information received in a decoded json object
 2. getAPIKey gets the API key for a user using a unique ID, which is currently the user's email
 3. validateAPIKeyForUpdateRequests validates the user's APIKey which we get from the client with the user's API key from CiviCRM
 4. getUserInfo gets the user's info
+5. recordTransactionInCiviCRM records a contribution a user made into CiviCRM as a Contribution object
 
 ### login.go
 validateToken is a function that accepts a service token from the client, who obtains it from

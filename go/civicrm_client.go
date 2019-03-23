@@ -193,6 +193,58 @@ func getUserInfo(apiKey string, contactId string) (*UserInfo, error) {
 	return &userInfo, nil
 }
 
+// records transaction in CiviCRM
+func recordTransactionInCiviCRM(userEmail string, userAPIKey string, transID string, amount string) error {
+	// record this transaction in CiviCRM
+	civiCRMAPIKey, userContactId, err := getAPIKey(userEmail)
+	if err != nil {
+		log.Println(err.Error())
+		return errors.New("error retrieving contact info from CiviCRM")
+	}
+
+	if !reflect.DeepEqual(userAPIKey, civiCRMAPIKey) {
+		return errors.New("authentication failed - api keys do not match")
+	}
+
+	// transactionInfo struct to put into CiviCRM
+	var transactionInfo struct {
+		FinancialTypeId string `json:"financial_type_id"`
+		TotalAmount     string `json:"total_amount"`
+		ContactId       string `json:"contact_id"`
+		TrxnId          string `json:"trxn_id"`
+		// make edit here to store more/different information in CiviCRM
+	}
+	transactionInfo.FinancialTypeId = "Donation"
+	transactionInfo.TotalAmount = amount
+	transactionInfo.ContactId = userContactId
+	transactionInfo.TrxnId = transID
+
+	infoJson, err := json.Marshal(transactionInfo)
+	if err != nil {
+		log.Println(err.Error())
+		return errors.New("error constructing infoJson for civicrm from transactionInfo")
+	}
+
+	v := &url.Values{}
+	v.Add("entity", "Contribution")
+	v.Add("action", "create")
+	v.Add("api_key", adminAPIKey)
+	v.Add("key", siteKey)
+	v.Add("json", string(infoJson))
+
+	var infoPutResp struct {
+		Error int `json:"is_error"`
+	}
+
+	if err = queryCiviCRM(*v, &infoPutResp); err != nil {
+		return err
+	} else if infoPutResp.Error != 0 {
+		return errors.New("error querying CiviCRM")
+	}
+
+	return nil
+}
+
 // Useful Structs
 // Not all of these fields will be populated
 type UserInfo struct {

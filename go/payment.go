@@ -22,6 +22,13 @@ type TCSaleResp struct {
 	AuthCode string `json:"authcode"`
 }
 
+type TCVerifyResp struct {
+	TransID  string `json:"transid"`
+	Status   string `json:"status"`
+	AuthCode string `json:"authcode"`
+	Avs      string `json:"avs"`
+}
+
 func NewTransactionMgr(custId, password string) *TransactionMgr {
 	return &TransactionMgr{
 		CustId:   custId,

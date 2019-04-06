@@ -247,7 +247,7 @@ func (mgr *TransactionMgr) createBillingId(name, ccNumber, expiry, zip string) (
 // return transaction status struct, err
 func (mgr *TransactionMgr) createVerificationFromCC(name, ccNumber, expiry, cvv string) (*TCVerifyResp, error) {
 	// malloc a C array of char*
-	mapSize := 7 //DIFF 1: mapSize
+	mapSize := 5 //DIFF 1: mapSize
 
 	cKeyArray := C.malloc(C.size_t(C.int(mapSize)) * C.size_t(unsafe.Sizeof(uintptr(0))))
 	cValueArray := C.malloc(C.size_t(C.int(mapSize)) * C.size_t(unsafe.Sizeof(uintptr(0))))
@@ -278,11 +278,11 @@ func (mgr *TransactionMgr) createVerificationFromCC(name, ccNumber, expiry, cvv 
 	keys[4] = C.CString("exp")
 	values[4] = C.CString(expiry)
 
-	keys[5] = C.CString("cvv")
-	values[5] = C.CString(cvv)
+	// keys[5] = C.CString("cvv")
+	// values[5] = C.CString(cvv)
 
-	keys[6] = C.CString("verify")
-	values[6] = C.CString("y")
+	// keys[6] = C.CString("verify")
+	// values[6] = C.CString("y")
 
 	for i := 0; i < mapSize; i++ {
 		defer C.free(unsafe.Pointer(keys[i]))

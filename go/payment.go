@@ -73,8 +73,8 @@ func (mgr *TransactionMgr) createSaleFromCC(name, ccNumber, cvv, expiry, amount 
 	keys[6] = C.CString("amount")
 	values[6] = C.CString(amount)
 
-	keys[7] = C.CString("cvv")
-	values[7] = C.CString(cvv)
+	// keys[7] = C.CString("cvv")
+	// values[7] = C.CString(cvv)
 
 	// keys[8] = C.CString("checkcvv")
 	// values[8] = C.CString('y')

@@ -125,9 +125,9 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 
 	dec := json.NewDecoder(req.Body)
 	var ccInfo struct {
-		Name   string `json:"name"`
-		Cc     string `json:"cc"`
-		Cvv    string `json:"cvv"`
+		Name string `json:"name"`
+		Cc   string `json:"cc"`
+		// Cvv    string `json:"cvv"`
 		Exp    string `json:"exp"`
 		Amount string `json:"amount"`
 		Email  string `json:"email"`
@@ -172,7 +172,8 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Cvv, ccInfo.Exp, ccInfo.Amount)
+	// saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Cvv, ccInfo.Exp, ccInfo.Amount)
+	saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
 	if err != nil {
 		log.Println(err.Error())
 		writeError(w, "Payment failed")

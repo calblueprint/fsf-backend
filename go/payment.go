@@ -37,7 +37,7 @@ func NewTransactionMgr(custId, password string) *TransactionMgr {
 }
 
 // return transaction status struct, err
-func (mgr *TransactionMgr) createSaleFromCC(name, ccNumber, cvv, expiry, amount string) (*TCSaleResp, error) {
+func (mgr *TransactionMgr) createSaleFromCC(name, ccNumber, expiry, amount string) (*TCSaleResp, error) {
 	// malloc a C array of char*
 	mapSize := 9
 

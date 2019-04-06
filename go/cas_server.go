@@ -154,8 +154,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		err = errors.New("missing email field")
 	} else if ccInfo.ApiKey == "" {
 		err = errors.New("missing apiKey field")
-	}
-	else if ccInfo.Cvv == "" {
+	} else if ccInfo.Cvv == "" {
 		err = errors.New("missing cvv field")
 	}
 

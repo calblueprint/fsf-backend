@@ -167,7 +167,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 	// creates the transaction
 	mgr := NewTransactionMgr(tcUsername, tcPassword)
 
-	verifyResp, err := mgr.createVerificationFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
+	verifyResp, err := mgr.createVerificationFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Cvv, ccInfo.Exp, ccInfo.Amount)
 	if err != nil {
 		log.Println(err.Error())
 		writeError(w, "Server side credit-card validation failed")

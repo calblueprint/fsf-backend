@@ -261,7 +261,7 @@ func (mgr *TransactionMgr) createVerificationFromCC(name, ccNumber, expiry, cvv 
 	values[1] = C.CString(mgr.Password)
 
 	keys[2] = C.CString("action")
-	values[2] = C.CString("xml") // DIFF 2: action is verify
+	values[2] = C.CString("verify") // DIFF 2: action is verify
 
 	// keys[3] = C.CString("name")
 	// values[3] = C.CString(name)

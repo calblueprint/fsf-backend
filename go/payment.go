@@ -245,7 +245,7 @@ func (mgr *TransactionMgr) createBillingId(name, ccNumber, expiry, zip string) (
 // }
 
 // return transaction status struct, err
-func (mgr *TransactionMgr) createVerificationFromCC(name, ccNumber, cvv, expiry, cvv string) (*TCVerifyResp, error) {
+func (mgr *TransactionMgr) createVerificationFromCC(name, ccNumber, expiry, cvv string) (*TCVerifyResp, error) {
 	// malloc a C array of char*
 	mapSize := 7 //DIFF 1: mapSize
 

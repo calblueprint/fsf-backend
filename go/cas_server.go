@@ -163,10 +163,24 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 
 	// creates the transaction
 	mgr := NewTransactionMgr(tcUsername, tcPassword)
+
+	verifyResp, err := mgr.createVerificationFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
+	if err != nil {
+		log.Println(err.Error())
+		writeError(w, "Server side credit-card validation failed")
+		return
+	}
+
 	saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
 	if err != nil {
 		log.Println(err.Error())
 		writeError(w, "Payment failed")
+		return
+	}
+
+	if verifyResp.Status != "approved" {
+		log.Println(err.Error())
+		writeError(w, "credit card validation transaction not successfully approved")
 		return
 	}
 
@@ -183,7 +197,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 
 	if saleResp.Status != "approved" {
 		log.Println(err.Error())
-		writeError(w, "transaction not successfully approved")
+		writeError(w, "sale transaction not successfully approved")
 		return
 
 	} else {

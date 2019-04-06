@@ -232,15 +232,14 @@ func (mgr *TransactionMgr) createBillingId(name, ccNumber, expiry, zip string) (
 	return billingId, nil
 }
 
-// COMMENTED OUT INCOMPLETE VERIFICATION FUNCTIONS
-/*
-func (mgr *TransactionMgr) verifyAddress(action, ccNumber, expiry, amount string) (*TCSaleResp, error) {
-}
-*/
+// INCOMPLETE VERIFICATION FUNCTIONS
 
-/*
+// func (mgr *TransactionMgr) verifyAddress(action, ccNumber, expiry, amount string) (*TCSaleResp, error) {
+
+// }
+
 // return transaction status struct, err
-func (mgr *TransactionMgr) verifyCard(action, ccNumber, expiry, cvv string) (*TCSaleResp, error) {
+func (mgr *TransactionMgr) createVerificationFromCC(action, ccNumber, expiry, cvv string) (*TCSaleResp, error) {
 	// malloc a C array of char*
 	mapSize := 8 //DIFF 1: mapSize
 
@@ -291,8 +290,7 @@ func (mgr *TransactionMgr) verifyCard(action, ccNumber, expiry, cvv string) (*TC
 	return mgr.createVerifyCardHelper((**C.char)(cKeyArray), (**C.char)(cValueArray), mapSize,
 		(*C.char)(buf), 1024)
 }
-*/
-/*
+
 func (mgr *TransactionMgr) createVerifyCardHelper(cKeyArray **C.char, cValueArray **C.char, mapSize int, dest *C.char, bufSize int) (*TCSaleResp, error) {
 	resp, respMap, err := mgr.TCTransactionHelper(cKeyArray, cValueArray, mapSize, dest, bufSize)
 
@@ -321,4 +319,3 @@ func (mgr *TransactionMgr) createVerifyCardHelper(cKeyArray **C.char, cValueArra
 	}
 	return &tcResp, nil
 }
-*/

@@ -215,14 +215,10 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		log.Println(err.Error())
 		writeError(w, "credit card validation transaction not successfully approved")
 		return
-	} else {
+	} else if verifyResp.Avs != "0" {
 		responseCode := verifyResp.Avs
 		log.Println(responseCode)
 		log.Println(avsResponseCodes[responseCode])
-		/*
-			A:
-
-		*/
 	}
 
 	/*

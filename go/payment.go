@@ -241,7 +241,7 @@ func (mgr *TransactionMgr) createBillingId(name, ccNumber, expiry, zip string) (
 // return transaction status struct, err
 func (mgr *TransactionMgr) createVerificationFromCC(name, ccNumber, expiry, cvv string) (*TCVerifyResp, error) {
 	// malloc a C array of char*
-	mapSize := 3 //DIFF 1: mapSize
+	mapSize := 5 //DIFF 1: mapSize
 
 	cKeyArray := C.malloc(C.size_t(C.int(mapSize)) * C.size_t(unsafe.Sizeof(uintptr(0))))
 	cValueArray := C.malloc(C.size_t(C.int(mapSize)) * C.size_t(unsafe.Sizeof(uintptr(0))))
@@ -254,11 +254,11 @@ func (mgr *TransactionMgr) createVerificationFromCC(name, ccNumber, expiry, cvv 
 	values := cArrayToSlice(cValueArray, mapSize)
 
 	// set parameters
-	// keys[0] = C.CString("custid")
-	// values[0] = C.CString(mgr.CustId)
+	keys[0] = C.CString("custid")
+	values[0] = C.CString(mgr.CustId)
 
-	// keys[1] = C.CString("password")
-	// values[1] = C.CString(mgr.Password)
+	keys[1] = C.CString("password")
+	values[1] = C.CString(mgr.Password)
 
 	keys[2] = C.CString("action")
 	values[2] = C.CString("verify") // DIFF 2: action is verify
@@ -277,8 +277,6 @@ func (mgr *TransactionMgr) createVerificationFromCC(name, ccNumber, expiry, cvv 
 
 	// keys[7] = C.CString("verify")
 	// values[7] = C.CString("y")
-	console.log(ccNunber)
-	console.log(expiry)
 
 	for i := 0; i < mapSize; i++ {
 		defer C.free(unsafe.Pointer(keys[i]))

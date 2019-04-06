@@ -37,9 +37,9 @@ func NewTransactionMgr(custId, password string) *TransactionMgr {
 }
 
 // return transaction status struct, err
-func (mgr *TransactionMgr) createSaleFromCC(name, ccNumber, expiry, amount string) (*TCSaleResp, error) {
+func (mgr *TransactionMgr) createSaleFromCC(name, ccNumber, cvv, expiry, amount string) (*TCSaleResp, error) {
 	// malloc a C array of char*
-	mapSize := 8
+	mapSize := 9
 
 	cKeyArray := C.malloc(C.size_t(C.int(mapSize)) * C.size_t(unsafe.Sizeof(uintptr(0))))
 	cValueArray := C.malloc(C.size_t(C.int(mapSize)) * C.size_t(unsafe.Sizeof(uintptr(0))))
@@ -73,8 +73,11 @@ func (mgr *TransactionMgr) createSaleFromCC(name, ccNumber, expiry, amount strin
 	keys[6] = C.CString("amount")
 	values[6] = C.CString(amount)
 
-	keys[7] = C.CString("checkcvv")
-	values[7] = C.CString('y')
+	keys[7] = C.CString("cvv")
+	values[7] = C.CString(cvv)
+
+	// keys[8] = C.CString("checkcvv")
+	// values[8] = C.CString('y')
 
 	for i := 0; i < mapSize; i++ {
 		defer C.free(unsafe.Pointer(keys[i]))

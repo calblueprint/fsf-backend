@@ -125,9 +125,9 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 
 	dec := json.NewDecoder(req.Body)
 	var ccInfo struct {
-		Name string `json:"name"`
-		Cc   string `json:"cc"`
-		// Cvv    string `json:"cvv"`
+		Name   string `json:"name"`
+		Cc     string `json:"cc"`
+		Cvv    string `json:"cvv"`
 		Exp    string `json:"exp"`
 		Amount string `json:"amount"`
 		Email  string `json:"email"`
@@ -155,6 +155,9 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 	} else if ccInfo.ApiKey == "" {
 		err = errors.New("missing apiKey field")
 	}
+	// else if ccInfo.Cvv == "" {
+	// 	err = errors.New("missing cvv field")
+	// }
 
 	if err != nil {
 		log.Println(err.Error())

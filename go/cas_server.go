@@ -417,7 +417,7 @@ func getUserInformation(w http.ResponseWriter, req *http.Request) {
 
 func main() {
 	// CAS mobile login server
-	addrPtr := flag.String("addr", "0.0.0.0:8080", "address to listen")
+	addrPtr := flag.String("addr", "0.0.0.0:8000", "address to listen")
 	siteKeyPtr := flag.String("sitekey", "", "provide site key of CiviCRM")
 	adminAPIKeyPtr := flag.String("adminkey", "", "provide the admin API key for CiviCRM")
 	tcuserPtr := flag.String("tcuser", "", "username for Trust Commerce")

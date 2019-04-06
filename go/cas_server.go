@@ -175,8 +175,8 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Cvv, ccInfo.Exp, ccInfo.Amount)
-	saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
+	saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Cvv, ccInfo.Exp, ccInfo.Amount)
+	// saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
 	if err != nil {
 		log.Println(err.Error())
 		writeError(w, "Payment failed")

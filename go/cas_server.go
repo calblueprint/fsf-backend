@@ -216,6 +216,9 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		writeError(w, "credit card validation transaction not successfully approved")
 		return
 	} else if verifyResp.Avs != "0" {
+		// FSF to decide on how they want to handle various AVS codes here
+		// by default TrustCommerce only declines on a NO MATCH response
+		// any additional behavior on top of that is up to FSF
 		responseCode := verifyResp.Avs
 		log.Println(responseCode)
 		log.Println(avsResponseCodes[responseCode])

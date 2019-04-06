@@ -277,6 +277,8 @@ func (mgr *TransactionMgr) createVerificationFromCC(name, ccNumber, expiry, cvv 
 
 	// keys[7] = C.CString("verify")
 	// values[7] = C.CString("y")
+	console.log(ccNunber)
+	console.log(expiry)
 
 	for i := 0; i < mapSize; i++ {
 		defer C.free(unsafe.Pointer(keys[i]))

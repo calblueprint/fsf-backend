@@ -76,8 +76,8 @@ func (mgr *TransactionMgr) createSaleFromCC(name, ccNumber, cvv, expiry, amount 
 	keys[7] = C.CString("cvv")
 	values[7] = C.CString(cvv)
 
-	// keys[8] = C.CString("checkcvv")
-	// values[8] = C.CString('y')
+	keys[8] = C.CString("checkcvv")
+	values[8] = C.CString("y")
 
 	for i := 0; i < mapSize; i++ {
 		defer C.free(unsafe.Pointer(keys[i]))

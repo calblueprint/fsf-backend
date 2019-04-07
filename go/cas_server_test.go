@@ -62,3 +62,27 @@ func TestHandlePayment(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 }
+
+func TestPaymentFromBillingId(t *testing.T) {
+	tcUsername = os.Getenv("TCUSERNAME")
+	tcPassword = os.Getenv("TCPASSWORD")
+	siteKey = os.Getenv("SITEKEY")
+	adminAPIKey = os.Getenv("ADMINAPIKEY")
+
+	prePayload := []byte(`{"billingid": "Q50K8A", "amount": "5315", "exp": "0404", "email": "test@test.com", "apikey": ""}`)
+	payLoad := bytes.NewBuffer(prePayload)
+
+	request, err := http.NewRequest("POST", "/payment/repeat_pay", payLoad)
+
+	if err == nil {
+		handler := http.HandlerFunc(handleRegisterCC)
+		response := httptest.NewRecorder()
+		handler.ServeHTTP(response, request)
+
+		if response.Code != 200 {
+			t.Errorf("/payment/repeat_pay FAILED")
+		}
+	} else {
+		t.Errorf(err.Error())
+	}
+}

@@ -86,8 +86,7 @@ func TestPaymentFromBillingId(t *testing.T) {
 
 	// prePayload := []byte(`{"billingid": "Q50K8A", "amount": "5315", "exp": "0404", "email": "test@test.com", "apikey": ""}`)
 	payLoad := bytes.NewBuffer(prePayload)
-
-	request, err := http.NewRequest("POST", "/payment/repeat_pay", payLoad)
+	request, err := http.NewRequest("POST", "/payment/repeat_pay", prePayLoad)
 
 	if err == nil {
 		handler := http.HandlerFunc(handleRegisterCC)

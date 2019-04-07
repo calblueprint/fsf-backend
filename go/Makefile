@@ -1,4 +1,4 @@
-run: deps
+build_all: deps
 	GOPATH=$(CURDIR)/.go CGO_LDFLAGS_ALLOW=".*" go build -o cas_server
 
 test: deps

@@ -30,7 +30,7 @@ var tcUsername, tcPassword string
  */
 func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
-		writeError(w, "Only POST requests are supported")
+		writeInternalServerError(w, "Only POST requests are supported")
 		return
 	}
 
@@ -43,7 +43,7 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if err := dec.Decode(&ccInfo); err != nil {
-		writeError(w, "Cannot parse request body correctly")
+		writeInternalServerError(w, "Cannot parse request body correctly")
 		return
 	}
 
@@ -61,7 +61,7 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 
 	if err != nil {
 		log.Println(err.Error())
-		writeError(w, err.Error())
+		writeBadRequestError(w, err.Error())
 		return
 	}
 
@@ -70,7 +70,7 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 	saleResp, err := mgr.createSaleFromBillingID(ccInfo.BillingID, ccInfo.Amount)
 	if err != nil {
 		log.Println(err.Error())
-		writeError(w, "Payment failed")
+		writeInternalServerError(w, "Payment failed")
 		return
 	}
 
@@ -80,13 +80,13 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 	 */
 	if saleResp.Status != "approved" {
 		log.Println(err.Error())
-		writeError(w, "transaction not successfully approved")
+		writeInternalServerError(w, "transaction not successfully approved")
 		return
 	} else {
 		err := recordTransactionInCiviCRM(ccInfo.Email, ccInfo.ApiKey, saleResp.TransID, ccInfo.Amount)
 		if err != nil {
 			log.Println(err.Error())
-			writeError(w, err.Error())
+			writeInternalServerError(w, err.Error())
 			return
 		}
 	}
@@ -119,7 +119,7 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
  */
 func handlePayment(w http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
-		writeError(w, "Only POST requests are supported")
+		writeInternalServerError(w, "Only POST requests are supported")
 		return
 	}
 
@@ -127,6 +127,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 	var ccInfo struct {
 		Name   string `json:"name"`
 		Cc     string `json:"cc"`
+		Cvv    string `json:"cvv"`
 		Exp    string `json:"exp"`
 		Amount string `json:"amount"`
 		Email  string `json:"email"`
@@ -135,7 +136,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 
 	if err := dec.Decode(&ccInfo); err != nil {
 		log.Println(err.Error())
-		writeError(w, "Cannot parse request body correctly")
+		writeInternalServerError(w, "Cannot parse request body correctly")
 		return
 	}
 
@@ -153,20 +154,44 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		err = errors.New("missing email field")
 	} else if ccInfo.ApiKey == "" {
 		err = errors.New("missing apiKey field")
+	} else if ccInfo.Cvv == "" {
+		err = errors.New("missing cvv field")
 	}
 
 	if err != nil {
 		log.Println(err.Error())
-		writeError(w, err.Error())
+		writeBadRequestError(w, err.Error())
 		return
 	}
 
 	// creates the transaction
 	mgr := NewTransactionMgr(tcUsername, tcPassword)
-	saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
+
+	verifyResp, err := mgr.createVerificationFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Cvv)
 	if err != nil {
 		log.Println(err.Error())
-		writeError(w, "Payment failed")
+		writeBadRequestError(w, "Server side credit-card validation failed")
+		return
+	}
+
+	if verifyResp.Status != "approved" {
+		log.Println(err.Error())
+		writeBadRequestError(w, "credit card validation transaction not successfully approved")
+		return
+	} else if verifyResp.Avs != "0" {
+		// TODO: FSF to decide on how they want to handle various AVS codes here
+		// by default TrustCommerce only declines on a NO MATCH response
+		// any additional behavior on top of that is up to FSF
+		responseCode := verifyResp.Avs
+		log.Println(responseCode)
+		log.Println(avsResponseCodes[responseCode])
+	}
+
+	saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Cvv, ccInfo.Exp, ccInfo.Amount)
+	// saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
+	if err != nil {
+		log.Println(err.Error())
+		writeInternalServerError(w, "Payment failed")
 		return
 	}
 
@@ -183,7 +208,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 
 	if saleResp.Status != "approved" {
 		log.Println(err.Error())
-		writeError(w, "transaction not successfully approved")
+		writeInternalServerError(w, "sale transaction not successfully approved")
 		return
 
 	} else {
@@ -206,7 +231,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		*/
 		if err != nil {
 			log.Println(err.Error())
-			writeError(w, err.Error())
+			writeInternalServerError(w, err.Error())
 			return
 		}
 	}
@@ -243,7 +268,7 @@ func handleRegisterCC(w http.ResponseWriter, req *http.Request) {
 		    }
 	*/
 	if req.Method != "POST" {
-		writeError(w, "Only POST requests are supported")
+		writeInternalServerError(w, "Only POST requests are supported")
 		return
 	}
 
@@ -256,7 +281,7 @@ func handleRegisterCC(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if err := dec.Decode(&ccInfo); err != nil {
-		writeError(w, "Cannot parse request body correctly")
+		writeInternalServerError(w, "Cannot parse request body correctly")
 		return
 	}
 
@@ -265,7 +290,7 @@ func handleRegisterCC(w http.ResponseWriter, req *http.Request) {
 	billingId, err := mgr.createBillingId(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Zip)
 	if err != nil {
 		log.Println(err.Error())
-		writeError(w, "Card registration failed")
+		writeInternalServerError(w, "Card registration failed")
 		return
 	}
 
@@ -301,7 +326,7 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 	 *  {"st": "service token"}
 	 */
 	if req.Method != "POST" {
-		writeError(w, "Only POST requests are supported")
+		writeInternalServerError(w, "Only POST requests are supported")
 		return
 	}
 
@@ -311,7 +336,7 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if err := dec.Decode(&t); err != nil {
-		writeError(w, "Cannot parse request body correctly")
+		writeInternalServerError(w, "Cannot parse request body correctly")
 		return
 	}
 
@@ -319,7 +344,7 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 
 	result, id, err := validateToken(serviceToken) // id here is the email from CAS
 	if err != nil {
-		writeError(w, "Server error when validating token")
+		writeInternalServerError(w, "Server error when validating token")
 		return
 	} else if !result {
 		writeAccessDenied(w, "Ticket authentication failed")
@@ -330,7 +355,7 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 	APIKey, contactId, err := getAPIKey(id)
 	if err != nil {
 		log.Println(err.Error())
-		writeError(w, "Server error when interacting with CiviCRM")
+		writeInternalServerError(w, "Server error when interacting with CiviCRM")
 		return
 	}
 
@@ -370,7 +395,7 @@ func getUserInformation(w http.ResponseWriter, req *http.Request) {
 	// requires a POST request
 
 	if req.Method != "POST" {
-		writeError(w, "Only POST requests are supported")
+		writeInternalServerError(w, "Only POST requests are supported")
 		return
 	}
 
@@ -384,7 +409,7 @@ func getUserInformation(w http.ResponseWriter, req *http.Request) {
 	if err := dec.Decode(&key); err != nil {
 		log.Println(dec)
 		log.Println(err)
-		writeError(w, "Cannot parse request body correctly")
+		writeInternalServerError(w, "Cannot parse request body correctly")
 		return
 	}
 
@@ -392,7 +417,7 @@ func getUserInformation(w http.ResponseWriter, req *http.Request) {
 
 	if err != nil {
 		log.Println(err.Error())
-		writeError(w, "Server error when interacting with CiviCRM")
+		writeInternalServerError(w, "Server error when interacting with CiviCRM")
 		return
 	}
 

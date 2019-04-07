@@ -16,6 +16,16 @@ import (
 	"testing"
 )
 
+type PayStruct struct {
+	Name   string `json:"name"`
+	Cc     string `json:"cc"`
+	Cvv    string `json:"cvv"`
+	Exp    string `json:"exp"`
+	Amount string `json:"amount"`
+	Email  string `json:"email"`
+	Apikey string `json:"apikey"`
+}
+
 type RepeatPayStruct struct {
 	BillingID string `json:"billingid"`
 	Amount    string `json:"amount"`
@@ -53,13 +63,17 @@ func TestHandlePayment(t *testing.T) {
 	siteKey = os.Getenv("SITEKEY")
 	adminAPIKey = os.Getenv("ADMINAPIKEY")
 
-	prePayload := []byte(`{"name": "John Smith", "cc": "4111111111111111", "exp": "0404", "email": "test@test.com", "apikey": ""}`)
+	// prePayload := []byte(`{"name": "John Smith", "cc": "4111111111111111", "exp": "0404", "email": "test@test.com", "apikey": ""}`)
+
+	payStruct := PayStruct{Name: "John Smith", Cc: "4111111111111111", Cvv: "123", Exp: "0404", Amount: "110", Email: "tonyyanga@gmail.com", Apikey: adminAPIKey}
+	prePayload, err := json.Marshal(payStruct)
+
 	payLoad := bytes.NewBuffer(prePayload)
 
 	request, err := http.NewRequest("POST", "/payment/pay", payLoad)
 
 	if err == nil {
-		handler := http.HandlerFunc(handleRegisterCC)
+		handler := http.HandlerFunc(handlePayment)
 		response := httptest.NewRecorder()
 		handler.ServeHTTP(response, request)
 
@@ -86,10 +100,10 @@ func TestPaymentFromBillingId(t *testing.T) {
 
 	// prePayload := []byte(`{"billingid": "Q50K8A", "amount": "5315", "exp": "0404", "email": "test@test.com", "apikey": ""}`)
 	payLoad := bytes.NewBuffer(prePayload)
-	request, err := http.NewRequest("POST", "/payment/repeat_pay", prePayload)
+	request, err := http.NewRequest("POST", "/payment/repeat_pay", payLoad)
 
 	if err == nil {
-		handler := http.HandlerFunc(handleRegisterCC)
+		handler := http.HandlerFunc(handleRepeatPayment)
 		response := httptest.NewRecorder()
 		handler.ServeHTTP(response, request)
 

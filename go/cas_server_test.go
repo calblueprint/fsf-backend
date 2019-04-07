@@ -15,6 +15,13 @@ import (
 	"testing"
 )
 
+type RepeatPayStruct struct {
+	BillingID string `json:"billingid"`
+	Amount    string `json:"amount"`
+	Email     string `json:"email"`
+	Apikey    string `json:"apikey"`
+}
+
 // Test /payment/register endpoint
 func TestHandleRegisterCC(t *testing.T) {
 	tcUsername = os.Getenv("TCUSERNAME")
@@ -56,7 +63,7 @@ func TestHandlePayment(t *testing.T) {
 		handler.ServeHTTP(response, request)
 
 		if response.Code != 200 {
-			t.Errorf("/payment/register FAILED")
+			t.Errorf("/payment/pay FAILED")
 		}
 	} else {
 		t.Errorf(err.Error())
@@ -69,7 +76,11 @@ func TestPaymentFromBillingId(t *testing.T) {
 	siteKey = os.Getenv("SITEKEY")
 	adminAPIKey = os.Getenv("ADMINAPIKEY")
 
-	prePayload := []byte(`{"billingid": "Q50K8A", "amount": "5315", "exp": "0404", "email": "test@test.com", "apikey": ""}`)
+	repeatPayStruct := RepeatPayStruct{BillingID: "Q50K8A", Amount: "5315", Email: "tonyyanga@gmail.com", Apikey: adminAPIKey}
+	prePayload := json.Marshal(repeatPayStruct)
+	// enc.Encode(saleResp)
+
+	// prePayload := []byte(`{"billingid": "Q50K8A", "amount": "5315", "exp": "0404", "email": "test@test.com", "apikey": ""}`)
 	payLoad := bytes.NewBuffer(prePayload)
 
 	request, err := http.NewRequest("POST", "/payment/repeat_pay", payLoad)

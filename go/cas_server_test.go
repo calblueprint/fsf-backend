@@ -49,7 +49,6 @@ func TestHandleRegisterCC(t *testing.T) {
 
 		if response.Code != 200 {
 			t.Errorf("/payment/register FAILED")
-			// t.Errorf("%i", response.Code)
 		}
 	} else {
 		t.Errorf(err.Error())
@@ -62,8 +61,6 @@ func TestHandlePayment(t *testing.T) {
 	tcPassword = os.Getenv("TCPASSWORD")
 	siteKey = os.Getenv("SITEKEY")
 	adminAPIKey = os.Getenv("ADMINAPIKEY")
-
-	// prePayload := []byte(`{"name": "John Smith", "cc": "4111111111111111", "exp": "0404", "email": "test@test.com", "apikey": ""}`)
 
 	payStruct := PayStruct{Name: "John Smith", Cc: "4111111111111111", Cvv: "123", Exp: "0404", Amount: "110", Email: "tonyyanga@gmail.com", Apikey: adminAPIKey}
 	prePayload, err := json.Marshal(payStruct)
@@ -96,9 +93,7 @@ func TestPaymentFromBillingId(t *testing.T) {
 	if err != nil {
 		t.Errorf("error encoding json")
 	}
-	// enc.Encode(saleResp)
 
-	// prePayload := []byte(`{"billingid": "Q50K8A", "amount": "5315", "exp": "0404", "email": "test@test.com", "apikey": ""}`)
 	payLoad := bytes.NewBuffer(prePayload)
 	request, err := http.NewRequest("POST", "/payment/repeat_pay", payLoad)
 

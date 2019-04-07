@@ -29,7 +29,8 @@ make
 
 Run the go backend binary:
 ```
-./cas_server -tcpasswd <PASSWORD HERE> -tcuser <USER NAME HERE> -adminkey <ADMIN KEY HERE> -sitekey <SITE KEY HERE>
+./cas_server -tcpasswd <PASSWORD HERE> -tcuser <USERNAME HERE> -adminkey <ADMIN KEY HERE> -sitekey <SITE KEY HERE>
 ```
 
-
+### How to run tests for go backend (`go/`)
+```TCPASSWORD=<PASSWORD HERE> TCUSERNAME=<USERNAME HERE> ADMINAPIKEY=<ADMIN KEY HERE> SITEKEY=<SITE KEY HERE> CGO_LDFLAGS_ALLOW=".*" go test -v```

@@ -15,7 +15,7 @@ module Api
             def create
                 petition = Petition.new(petition_params)
                 if petition.save
-                    render json: {status: 'SUCCESS', message:'Loaded FSF Petition', data: petition}, status: :ok
+                    render json: {status: 'SUCCESS', message:'Created new FSF Petition', data: petition}, status: :ok
                 else
                     render json: {status: 'ERROR', message:'Petition not saved', data: petition.errors}, status: :unprocessable_entity
                 end

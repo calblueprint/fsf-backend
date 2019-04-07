@@ -9,7 +9,7 @@ package main
 
 import (
 	"bytes"
-	"json"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"os"

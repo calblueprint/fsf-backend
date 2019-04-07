@@ -78,7 +78,10 @@ func TestPaymentFromBillingId(t *testing.T) {
 	adminAPIKey = os.Getenv("ADMINAPIKEY")
 
 	repeatPayStruct := RepeatPayStruct{BillingID: "Q50K8A", Amount: "5315", Email: "tonyyanga@gmail.com", Apikey: adminAPIKey}
-	prePayload := json.Marshal(repeatPayStruct)
+	prePayload, err := json.Marshal(repeatPayStruct)
+	if err != nil {
+		t.Errorf("error encoding json")
+	}
 	// enc.Encode(saleResp)
 
 	// prePayload := []byte(`{"billingid": "Q50K8A", "amount": "5315", "exp": "0404", "email": "test@test.com", "apikey": ""}`)

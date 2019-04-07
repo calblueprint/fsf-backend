@@ -167,6 +167,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 	// creates the transaction
 	mgr := NewTransactionMgr(tcUsername, tcPassword)
 
+	// credit card verification
 	verifyResp, err := mgr.createVerificationFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Cvv)
 	if err != nil {
 		log.Println(err.Error())
@@ -187,8 +188,8 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 		log.Println(avsResponseCodes[responseCode])
 	}
 
+	// create sale
 	saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Cvv, ccInfo.Exp, ccInfo.Amount)
-	// saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Amount)
 	if err != nil {
 		log.Println(err.Error())
 		writeInternalServerError(w, "Payment failed")
@@ -254,6 +255,10 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 
 	when success, returns a json like the following:
 	{"billingid": "a billing id from TrustCommerce"}
+
+	handleRegisterCC is currently called only after credit card has been created after handlePayment
+	succeeds. It thus does NOT have credit card validation because this validation already happens
+	in handlePayment
 */
 
 func handleRegisterCC(w http.ResponseWriter, req *http.Request) {

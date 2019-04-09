@@ -1,30 +1,61 @@
-# README
+# Rails backend for FSF's mobile app
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This is the rails backend for FSF's mobile app. It serves the news feed tab by storing articles from RSS and posts from Twitter or GNU social.
 
-Things you may want to cover:
+### Environment
 
-- Ruby version
-  - ruby 2.5.1
-  - Rails 5.2.1
-- System dependencies
+Ruby 2.5.1
+Rails 5.2.0
 
 - Ruby Linter
-
   - command: ./lint
   - https://github.com/prettier/plugin-ruby
 
-- Configuration
+Default database connection uses PostgreSQL connection. Change `config/database.yml` to use other db connections.
 
-- Database creation
+### Install dependencies and run on your native environment
 
-- Database initialization
+Prerequisite: proper ruby version
 
-- How to run the test suite
+First install rails and other dependencies.
 
-- Services (job queues, cache servers, search engines, etc.)
+```
+bundle install
+```
 
-- Deployment instructions
+Then creates the database if necessary.
 
-- ...
+```
+rails db:create
+```
+
+To set up the database, run:
+
+```
+rails db:migrate
+```
+
+To seed the database, use:
+
+```
+rails db:seed
+```
+
+To start the server, run:
+
+```
+rails s
+```
+
+### Setup in Docker
+
+`docker-compose` can be used to setup the ruby / rails environment and postgres server in docker containers. You need to install docker and docker-compose before you execute the scripts.
+
+The following commands set up the containers:
+
+```
+cp config/database.yml.docker config/database.yml
+./docker_setup.sh
+```
+
+You can use `docker-compose exec` commands to run the rails server. See docker-compose documentation for more details.

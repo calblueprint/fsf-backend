@@ -104,6 +104,7 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
  * {
  *  "name": "John Smith",
  *  "cc": "4111111111111111",
+ *	"cvv": "123",
  *  "exp": "0404",
  *  "amount": "110",
  *  "email": "some valid email",
@@ -157,6 +158,139 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 	} else if ccInfo.Cvv == "" {
 		err = errors.New("missing cvv field")
 	}
+
+	if err != nil {
+		log.Println(err.Error())
+		writeBadRequestError(w, err.Error())
+		return
+	}
+
+	// creates the transaction
+	mgr := NewTransactionMgr(tcUsername, tcPassword)
+
+	// credit card verification
+	verifyResp, err := mgr.createVerificationFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Exp, ccInfo.Cvv)
+	if err != nil {
+		log.Println(err.Error())
+		writeBadRequestError(w, "Server side credit-card validation failed")
+		return
+	}
+
+	if verifyResp.Status != "approved" {
+		log.Println(err.Error())
+		writeBadRequestError(w, "credit card validation transaction not successfully approved")
+		return
+	} else if verifyResp.Avs != "0" {
+		// TODO: FSF to decide on how they want to handle various AVS codes here
+		// by default TrustCommerce only declines on a NO MATCH response
+		// any additional behavior on top of that is up to FSF
+		responseCode := verifyResp.Avs
+		log.Println(responseCode)
+		log.Println(avsResponseCodes[responseCode])
+	}
+
+	// create sale
+	saleResp, err := mgr.createSaleFromCC(ccInfo.Name, ccInfo.Cc, ccInfo.Cvv, ccInfo.Exp, ccInfo.Amount)
+	if err != nil {
+		log.Println(err.Error())
+		writeInternalServerError(w, "Payment failed")
+		return
+	}
+
+	/*
+	 * var TCSaleResp struct {
+	 *		TransID  string `json:"transid"`
+	 *		Status   string `json:"status"`
+	 *		AuthCode string `json:"authcode"`
+	 *	}
+	 *
+	 *	write an error if the transaction is not approved,
+	 *  else record the contribution in CiviCRM
+	 */
+
+	if saleResp.Status != "approved" {
+		log.Println(err.Error())
+		writeInternalServerError(w, "sale transaction not successfully approved")
+		return
+
+	} else {
+		/*
+				ccInfo struct {
+					Name   string `json:"name"`
+					Cc     string `json:"cc"`
+					Exp    string `json:"exp"`
+					Amount string `json:"amount"`
+				  Email string `json:"email"`
+			  	ApiKey string `json:"apikey"`
+				}
+		*/
+		err := recordTransactionInCiviCRM(ccInfo.Email, ccInfo.ApiKey, saleResp.TransID, ccInfo.Amount)
+		/*
+			TODO:
+			Prevent scenario of payment made, but transaction recorded wrongly; implement either:
+				1. repeated retry on failure
+				2. separate logs for these scenarios that require admin attention
+		*/
+		if err != nil {
+			log.Println(err.Error())
+			writeInternalServerError(w, err.Error())
+			return
+		}
+	}
+
+	// write billing id back in response
+	enc := json.NewEncoder(w)
+	// see TCSaleResp struct for json response struct
+	enc.Encode(saleResp)
+}
+
+/*
+ * handles a request for an anonymous payment
+ * requires a POST request with json payload with the following format
+ * {
+ *  "cc": "4111111111111111",
+ *	"cvv": "123",
+ *  "exp": "0404",
+ *  "amount": "110"
+ * }
+ *
+ * when successful, returns a json like the following:
+ * {
+ *   "transid": "a transaction id from TrustCommerce",
+ *   "status": "status of transaction { approved, declined, baddata, error }"
+ *   "authcode": "auth code for the transaction"
+ * }
+ */
+func handleAnonymousPayment(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "POST" {
+		writeInternalServerError(w, "Only POST requests are supported")
+		return
+	}
+
+	dec := json.NewDecoder(req.Body)
+	var ccInfo struct {
+		Cc     string `json:"cc"`
+		Cvv    string `json:"cvv"`
+		Exp    string `json:"exp"`
+		Amount string `json:"amount"`
+	}
+
+	if err := dec.Decode(&ccInfo); err != nil {
+		log.Println(err.Error())
+		writeInternalServerError(w, "Cannot parse request body correctly")
+		return
+	}
+
+	// input validation
+	var err error
+	if ccInfo.Cc == "" {
+		err = errors.New("missing cc field")
+	} else if ccInfo.Cvv == "" {
+		err = errors.New("missing cvv field")
+	} else if ccInfo.Exp == "" {
+		err = errors.New("missing exp field")
+	} else if ccInfo.Amount == "" {
+		err = errors.New("missing amount field")
 
 	if err != nil {
 		log.Println(err.Error())
@@ -451,6 +585,7 @@ func main() {
 	http.HandleFunc("/payment/register", handleRegisterCC)
 	http.HandleFunc("/payment/pay", handlePayment)
 	http.HandleFunc("/payment/repeat_pay", handleRepeatPayment)
+	http.HandleFunc("/payment/anonymous_pay", handleAnonymousPayment)
 	http.HandleFunc("/user/info", getUserInformation)
 	log.Fatal(http.ListenAndServe(*addrPtr, nil))
 }

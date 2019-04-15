@@ -260,6 +260,9 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
  *   "status": "status of transaction { approved, declined, baddata, error }"
  *   "authcode": "auth code for the transaction"
  * }
+ *
+ * assumes the existence of a dummy user 
+ * 
  */
 func handleAnonymousPayment(w http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {

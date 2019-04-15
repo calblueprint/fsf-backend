@@ -17,6 +17,8 @@ Default database connection uses PostgreSQL connection. Change `config/database.
 
 Prerequisite: proper ruby version
 
+A popular way to manage ruby versions is to use `rvm`, i.e. Ruby Version Manager. See its [website](https://rvm.io/) for details. 
+
 First install rails and other dependencies.
 
 ```

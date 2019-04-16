@@ -20,6 +20,8 @@ In order to run the server locally you will need the following installed in your
 
 ### 🔗 ️Installing Dependencies, Creating the Database and Running Migrations Locally
 
+First install rails. A popular way to manage ruby versions is to use `rvm`, i.e. Ruby Version Manager. See its [website](https://rvm.io/) for details. 
+
 The following command will install the required gems for the application
 
 ```

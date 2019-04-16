@@ -5,7 +5,7 @@ Welcome to the rails backend for FSF's mobile application. It serves the news fe
 It serves three primary purposes
 
 1. As an API access point for serving up news content for the News Feed Tab on the Mobile application
-2. As an ETL pipeline (Extract, Transform and Load) for taking in data sources (FSF News RSS Feed, FSF GNU Social, Twitter) and transforming it into a format that can be used and keeping all data sources up to data
+2. As an ETL pipeline (Extract, Transform and Load) for taking in data sources (FSF News RSS Feed, FSF GNU Social, Twitter) and transforming it into a format that can be used and keeping all data sources up to date
 3. As an admin dashboard - allowing users who have administrator access to add/modify/delete new news sources.
 
 ---

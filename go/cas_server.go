@@ -351,7 +351,7 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 
 	serviceToken := t.ST // service token we get from the request
 
-	result, id, err := validateToken(serviceToken) // id here is the email from CAS
+	result, id, err := validateToken(serviceToken) // id here is the username
 
 	if err != nil {
 		writeError(w, "Server error when validating token")

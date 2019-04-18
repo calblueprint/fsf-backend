@@ -55,8 +55,8 @@ func validateToken(token string) (bool, string, error) {
 
 	if err := dec.Decode(&r); err != nil {
 		log.Print("Failure parsing CAS validate response")
-		return false, "", err 
+		return false, "", err
 	}
 
-	return true, r.AuthSuccess.Attributes.Email, nil
+	return true, r.AuthSuccess.User, nil
 }

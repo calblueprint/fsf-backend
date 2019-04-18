@@ -59,5 +59,5 @@ func validateToken(token string) (bool, string, error) {
 		return false, "", err
 	}
 
-	return true, r.AuthSuccess.Attributes.Email, nil
+	return true, r.AuthSuccess.User, nil
 }

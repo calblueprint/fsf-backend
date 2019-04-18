@@ -45,14 +45,12 @@ func queryCiviCRM(v url.Values, dest interface{}) error {
 	return nil
 }
 
-/*
-	Retrieve the API key of the user identified by certain id string
-	@param id: id string from CAS (currently user's email)
-	@return:
-	a string that is the API key
-	a string that is the contact id in CiviCRM
-	an error if any error occurs
-*/
+// Retrieve the API key of the user identified by certain id string
+// @param id: id string from CAS (currently username)
+// @return:
+//   a string that is the API key
+//   a string that is the contact id in CiviCRM
+//   an error if any error occurs
 func getAPIKey(id string) (string, string, error) {
 	/** Because of the design of CiviCRM, API Key is only shown when we do an update
 	  i.e. a create with contact_id specified.
@@ -64,40 +62,38 @@ func getAPIKey(id string) (string, string, error) {
 	*/
 
 	// Query for contact id
-	var idQuery struct {
+	var userQuery struct {
 		Sequential int    `json:"sequential"`
-		Return     string `json:"return"`
-		Email      string `json:"email"`
+		ContactID  string `json:"contact_id"`
 	}
-	idQuery.Sequential = 1
-	idQuery.Email = id
-	idQuery.Return = "id"
+	userQuery.Sequential = 1
+	userQuery.ContactID = "@user:" + id
 
-	idQueryJson, err := json.Marshal(idQuery)
+	userQueryJson, err := json.Marshal(userQuery)
 	if err != nil {
 		log.Println("Error constructing query json for civicrm")
 		return "", "", err
 	}
 
 	v := &url.Values{}
-	v.Add("entity", "Contact")
+	v.Add("entity", "User")
 	v.Add("action", "get")
 	v.Add("api_key", adminAPIKey)
 	v.Add("key", siteKey)
-	v.Add("json", string(idQueryJson))
+	v.Add("json", string(userQueryJson))
 
-	var idQueryResp struct {
+	var userQueryResp struct {
 		Error  int `json:"is_error"`
 		Values []struct {
-			Id string `json:"id"`
+			ContactID string `json:"contact_id"`
 		} `json:"values"`
 	}
 
-	if err = queryCiviCRM(*v, &idQueryResp); err != nil || idQueryResp.Error != 0 || len(idQueryResp.Values) != 1 {
+	if err = queryCiviCRM(*v, &userQueryResp); err != nil || userQueryResp.Error != 0 {
 		return "", "", fmt.Errorf("Bad response")
 	}
 
-	contactId := idQueryResp.Values[0].Id
+	contactId := userQueryResp.Values[0].ContactID
 	log.Println("Contact id is:" + contactId)
 
 	// Use an update query to check for API key
@@ -105,6 +101,7 @@ func getAPIKey(id string) (string, string, error) {
 
 	v.Set("action", "create")
 	v.Set("json", updateQueryJson)
+	v.Set("entity", "Contact")
 
 	var updateQueryResp struct {
 		Error  int                 `json:"is_error"`

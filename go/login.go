@@ -6,14 +6,16 @@ import (
 	"net/http"
 )
 
-// This function accepts a service token from the client, who obtains it from
-// CAS. It interacts with CAS server to validate the token.
-//
-// @param token: service token
-// @return:
-//   bool: whether auth is successful
-//   string: id string to retrieve user auth info from civicrm
-//   error: if err != nil, there is a server error
+/*
+	This function accepts a service token from the client, who obtains it from
+	CAS. It interacts with CAS server to validate the token.
+
+	@param token: service token
+	@return:
+	bool: whether auth is successful
+	string: id string to retrieve user auth info from civicrm
+	error: if err != nil, there is a server error
+*/
 func validateToken(token string) (bool, string, error) {
 	c := &http.Client{}
 
@@ -38,7 +40,6 @@ func validateToken(token string) (bool, string, error) {
 	}
 
 	// resp StatusCode should be 200, parse response for identity
-
 	dec := xml.NewDecoder(resp.Body)
 
 	var r struct {

@@ -2,18 +2,23 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"net/url"
+	"reflect"
 )
 
+// global variables to be set by users passing in env variables
 var siteKey, adminAPIKey string
 
-// A helper function to query CiviCRM
-// @param
-//   v: encoded CiviCRM REST query
-//   dest: an object where we store the decoded json object
+/*
+A helper function to query CiviCRM
+@param
+  v: encoded CiviCRM REST query
+  dest: an object where we store the decoded json object
+*/
 func queryCiviCRM(v url.Values, dest interface{}) error {
 	c := &http.Client{}
 	requestURL := "https://crmserver3d.fsf.org/sites/all/modules/civicrm/extern/rest.php"
@@ -66,7 +71,7 @@ func getAPIKey(id string) (string, string, error) {
 
 	userQueryJson, err := json.Marshal(userQuery)
 	if err != nil {
-		log.Fatal("Error constructing query json for civicrm")
+		log.Println("Error constructing query json for civicrm")
 		return "", "", err
 	}
 
@@ -127,10 +132,12 @@ func getAPIKey(id string) (string, string, error) {
 	return newAPIKey, contactId, nil
 }
 
-// A helper function to validate a user apiKey that we get from the client
-// @param:
-//   apiKey: apiKey stored in frontend
-//   contactId: contactId of user
+/*
+	A helper function to validate a user apiKey that we get from the client
+	@param:
+	apiKey: apiKey stored in frontend
+	contactId: contactId of user
+*/
 func validateAPIKeyForUpdateRequests(apiKey string, contactId string) bool {
 	idQueryJSON := `{"id":"` + contactId + `"}`
 	v := &url.Values{}
@@ -157,6 +164,14 @@ func validateAPIKeyForUpdateRequests(apiKey string, contactId string) bool {
 	return false
 }
 
+/*
+	A helper function to get a user's info
+	@param:
+	apiKey: apiKey stored in frontend
+	contactId: contactId of user
+	@return:
+	userinfos struct, error
+*/
 func getUserInfo(apiKey string, contactId string) (*UserInfo, error) {
 	/** Because of the design of CiviCRM, API Key is only shown when we do an update
 	  i.e. a create with contact_id specified.
@@ -190,6 +205,69 @@ func getUserInfo(apiKey string, contactId string) (*UserInfo, error) {
 	}
 	var userInfo = getQueryResp.Values[contactId]
 	return &userInfo, nil
+}
+
+// records transaction in CiviCRM
+/*
+	A helper function to gerecord a transaction in CiviCRM.
+	@param:
+	userEmail, userAPIKey, transID, amount
+	@return:
+	error
+	The function can be edited to store whatever information we want from a transaction
+*/
+func recordTransactionInCiviCRM(userEmail string, userAPIKey string, transID string, amount string) error {
+	// record this transaction in CiviCRM
+	civiCRMAPIKey, userContactId, err := getAPIKey(userEmail)
+	if err != nil {
+		log.Println(err.Error())
+		return errors.New("error retrieving contact info from CiviCRM")
+	}
+
+	// validate API key received form the client with API key in CiviCRM
+	if !reflect.DeepEqual(userAPIKey, civiCRMAPIKey) {
+		return errors.New("authentication failed - api keys do not match")
+	}
+
+	// transactionInfo struct to put into CiviCRM
+	var transactionInfo struct {
+		FinancialTypeId string `json:"financial_type_id"`
+		TotalAmount     string `json:"total_amount"`
+		ContactId       string `json:"contact_id"`
+		TrxnId          string `json:"trxn_id"`
+		// make edit here to store more/different information in CiviCRM
+	}
+
+	// this particular transaction is a donation
+	transactionInfo.FinancialTypeId = "Donation"
+	transactionInfo.TotalAmount = amount
+	transactionInfo.ContactId = userContactId
+	transactionInfo.TrxnId = transID
+
+	infoJson, err := json.Marshal(transactionInfo)
+	if err != nil {
+		log.Println(err.Error())
+		return errors.New("error constructing infoJson for civicrm from transactionInfo")
+	}
+
+	v := &url.Values{}
+	v.Add("entity", "Contribution")
+	v.Add("action", "create")
+	v.Add("api_key", adminAPIKey)
+	v.Add("key", siteKey)
+	v.Add("json", string(infoJson))
+
+	var infoPutResp struct {
+		Error int `json:"is_error"`
+	}
+
+	if err = queryCiviCRM(*v, &infoPutResp); err != nil {
+		return err
+	} else if infoPutResp.Error != 0 {
+		return errors.New("error querying CiviCRM")
+	}
+
+	return nil
 }
 
 // Useful Structs

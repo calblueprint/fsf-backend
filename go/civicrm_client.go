@@ -84,7 +84,7 @@ func getAPIKey(id string) (string, string, error) {
 		} `json:"values"`
 	}
 
-	if err = queryCiviCRM(*v, &userQueryResp); err != nil || userQueryResp.Error != 0 || len(userQueryResp.Values) != 1 {
+	if err = queryCiviCRM(*v, &userQueryResp); err != nil || userQueryResp.Error != 0 {
 		return "", "", fmt.Errorf("Bad response")
 	}
 
@@ -96,6 +96,7 @@ func getAPIKey(id string) (string, string, error) {
 
 	v.Set("action", "create")
 	v.Set("json", updateQueryJson)
+	v.Set("entity", "Contact")
 
 	var updateQueryResp struct {
 		Error  int                 `json:"is_error"`

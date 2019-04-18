@@ -4,6 +4,7 @@ Rails.application.routes.draw do
       resources :articles
       resources :notices
       resources :tweets
+      resources :petitions
     end
   end
 

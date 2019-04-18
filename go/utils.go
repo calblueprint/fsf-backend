@@ -58,8 +58,12 @@ func getRandomKey() string {
 	return string(bytes)
 }
 
-func writeError(w http.ResponseWriter, msg string) {
+func writeInternalServerError(w http.ResponseWriter, msg string) {
 	http.Error(w, msg, 500)
+}
+
+func writeBadRequestError(w http.ResponseWriter, msg string) {
+	http.Error(w, msg, 400)
 }
 
 func writeAccessDenied(w http.ResponseWriter, msg string) {

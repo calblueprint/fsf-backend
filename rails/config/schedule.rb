@@ -5,11 +5,11 @@
 
 
 
-# EXAMPLE TO USE FOR TEST
-### For Development Purposes
-# every 1.minute do # 1.minute 1.day 1.week 1.month 1.year is also supported
-#     command("/bin/bash -l -c 'cd /your/path/goes/here/yup/fsf-rails/rails && RAILS_ENV=development bundle exec rake db:updateNews --silent'")
-# end
+# EXAMPLE TO USE FOR TESTING in DEVELOPMENT ENVIRONMENT
+## For Development Purposes
+every 1.day do # 1.minute 1.day 1.week 1.month 1.year is also supported
+    command("/bin/bash -l -c 'cd /your/absolute/path/to/fsf-rails/rails/ && RAILS_ENV=development bundle exec rake db:updateNews --silent'")
+end
 
 
 
@@ -19,12 +19,12 @@
 # updates the cron job
 # running <whenever> in your command prompt will output the command it will run
 # this cron job set by the whenever will run the following rake command that updates the
-# news database 
+# news database
 every 1.day do # 1.minute 1.day 1.week 1.month 1.year is also supported
     rake "db:updateNews"
 end
 
-#set :output, "/path/to/my/cron_log.log"
+# set :output, "/path/to/my/cron_log.log"
 
 # every 2.hours do
 #   commad "/usr/bin/some_great_command"

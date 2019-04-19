@@ -1,8 +1,15 @@
 RailsAdmin.config do |config|
+  # This is an option lol:
+  config.authenticate_with do
+    authenticate_or_request_with_http_basic('Site Message') do |username, password|
+      username == 'foo' && password == 'bar'
+    end
+  end
+
 
   ### Popular gems integration
 
-  ## == Devise ==
+  # == Devise ==
   # config.authenticate_with do
   #   warden.authenticate! scope: :user
   # end

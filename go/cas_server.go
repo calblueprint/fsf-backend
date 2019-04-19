@@ -419,7 +419,7 @@ func getUserInformation(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	userInfo, err := getUserInfo(key.Key, key.ID)
+	userInfo, err := getUserInfo(decrypt([]byte(key.Key), siteKey), key.ID)
 
 	if err != nil {
 		log.Println(err.Error())

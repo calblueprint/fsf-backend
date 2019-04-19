@@ -9,7 +9,7 @@ import (
 )
 
 // global variables to be set by users passing in env variables
-var tcUsername, tcPassword string
+var tcUsername, tcPassword, siteKey, adminAPIKey string
 
 /*
  * handles a request for a repeated payment, i.e. using billing id
@@ -83,7 +83,7 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 		writeInternalServerError(w, "transaction not successfully approved")
 		return
 	} else {
-		err := recordTransactionInCiviCRM(ccInfo.Email, ccInfo.ApiKey, saleResp.TransID, ccInfo.Amount)
+		err := recordTransactionInCiviCRM(ccInfo.Email, decrypt([]byte(ccInfo.ApiKey), siteKey), saleResp.TransID, ccInfo.Amount)
 		if err != nil {
 			log.Println(err.Error())
 			writeInternalServerError(w, err.Error())
@@ -223,7 +223,7 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 			  	ApiKey string `json:"apikey"`
 				}
 		*/
-		err := recordTransactionInCiviCRM(ccInfo.Email, ccInfo.ApiKey, saleResp.TransID, ccInfo.Amount)
+		err := recordTransactionInCiviCRM(ccInfo.Email, decrypt([]byte(ccInfo.ApiKey), siteKey), saleResp.TransID, ccInfo.Amount)
 		/*
 			TODO:
 			Prevent scenario of payment made, but transaction recorded wrongly; implement either:
@@ -374,7 +374,7 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 		Email string `json:"email"`
 	}
 
-	key.Key = APIKey
+	key.Key = encrypt([]byte(APIKey), siteKey)
 	key.ID = contactId
 	key.Email = id
 

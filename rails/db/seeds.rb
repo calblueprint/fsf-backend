@@ -6,15 +6,20 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
-#NUM_MESSAGES = 5
+NUM_MESSAGES = 5
 NUM_ARTICLES = 5 
 
-# 0.upto(NUM_MESSAGES) do |i|
-#   Message.create content: Faker::HarryPotter.quote
-# end
+#Creates 5 Test Messages
+0.upto(NUM_MESSAGES) do |i|
+  Message.create({
+      title: "#{Faker::Kpop.ii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups}",
+      content: Faker::HarryPotter.quote,
+      link: "fsf://fsf/donate"
+    })
+end
 
 # Create source urls
-Source.create source_type: :rss, url: "https://static.fsf.org/fsforg/rss/news.xml"
+Source.create source_type: :rss, rss_url: "https://static.fsf.org/fsforg/rss/news.xml"
 
 Petition.create title: "Please Act Now!", description: "Your digital rights are dying", link: "https://my.fsf.org/civicrm/petition/sign?sid=8&reset=1"
 

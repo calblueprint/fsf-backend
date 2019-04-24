@@ -5,6 +5,10 @@ Rails.application.routes.draw do
       resources :notices
       resources :tweets
       resources :petitions
+      resources :messages
+      
+      # message route
+      get 'latestMessages', to: 'messages#get_latest_messages'
     end
   end
 

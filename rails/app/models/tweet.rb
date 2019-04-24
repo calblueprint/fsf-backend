@@ -7,6 +7,12 @@
 # url                 :string
 # text                :string
 class Tweet < ApplicationRecord
+  after_update_commit :create_message_object
+    
+  private
+  def create_message_object
+      Message.create(content: Faker::HarryPotter.quote, title: "I made this BABY 2", link: "fsf://fsf/profile")
+  end
   validates :id, presence:true
   validates :date, presence:true
   validates :url, presence:true

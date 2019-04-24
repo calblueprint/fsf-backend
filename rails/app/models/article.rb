@@ -10,18 +10,34 @@
 #  t.text "description"
 #  t.text "summary"
 class Article < ApplicationRecord
-  after_create_commit :create_message_object
-  after_update_commit :create_message_object
+  has_one :message
+  after_create_commit :create_message_if_new_alert
+  after_update_commit :update_message_object
   after_destroy :destroy_message_object
     
+  # TODO: need to figure out the linking stuff for deep linking
+
   private
-  def create_message_object
-      Message.create(content: self.content, title: "I made this BABY 2", link: "fsf://fsf/profile")
+  def create_message_if_new_alert
+    if self.news_alert
+      Message.create(content: self.content, title: self.title, link: "fsf://fsf/profile", article_id: self.id)
+    end
+  end
+
+  private
+  def update_message_object
+    if self.news_alert
+      Message.create(content: self.content, title: self.title, link: "fsf://fsf/profile", article_id: self.id)
+    else
+      Message.where(article_id: self.id).destroy_all
+    end
   end
 
   private
   def destroy_message_object
-
+    if self.news_alert
+      Message.where(article_id: self.id).destroy_all
+    end
   end
 
   validates :title, presence: true

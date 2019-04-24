@@ -14,13 +14,6 @@ module Api
                 # messages = Message.order('updated_at DESC').last(1);
 
                 messages = Message.where(updated_at: last_sent..DateTime.now).order('updated_at DESC')
-        
-
-                # @users = User.where(created_at: from_date.beginning_of_day..to_date.end_of_day)
-
-
-                # upon deletion, also do something (not found here)
-                
                 render json: {status: 'SUCCESS', message:'Loaded FSF Messages', data: messages}, status: :ok
             end
         end

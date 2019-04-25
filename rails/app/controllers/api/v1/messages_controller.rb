@@ -11,9 +11,9 @@ module Api
                     
                     # filter Message.where('updated_at' > something)
                     messages = Message.where(updated_at: last_sent..DateTime.now).order('updated_at DESC')
-                    # messages = Message.order('updated_at DESC').last(1);
                     render json: {status: 'SUCCESS', message:'Loaded FSF Messages', data: messages}, status: :ok
                 else
+                    # messages = Message.order('updated_at DESC').last(1);
                     render json: {status: 'FAILURE', message:'Please pass in a last_sent parameter', data: {}}, status: :bad_request
                 end
             end

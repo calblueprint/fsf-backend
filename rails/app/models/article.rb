@@ -19,17 +19,17 @@ class Article < ApplicationRecord
 
   private
   def create_message_if_new_alert
+    Message.where(article_id: self.id).destroy_all
     if self.news_alert
-      Message.create(content: self.content, title: self.title, link: "fsf://fsf/profile", article_id: self.id)
+      Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)
     end
   end
 
   private
   def update_message_object
+    Message.where(article_id: self.id).destroy_all
     if self.news_alert
-      Message.create(content: self.content, title: self.title, link: "fsf://fsf/profile", article_id: self.id)
-    else
-      Message.where(article_id: self.id).destroy_all
+      Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)  
     end
   end
 

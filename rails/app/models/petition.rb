@@ -1,4 +1,5 @@
 class Petition < ApplicationRecord
+  belongs_to :message, optional: true
   # db schema:
   # create_table "petitions", force: :cascade do |t|
   #   t.string "title"

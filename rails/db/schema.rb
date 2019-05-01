@@ -25,6 +25,8 @@ ActiveRecord::Schema.define(version: 2019_04_24_075947) do
     t.datetime "updated_at", null: false
     t.text "description"
     t.text "summary"
+    t.bigint "message_id"
+    t.index ["message_id"], name: "index_articles_on_message_id"
   end
 
   create_table "messages", force: :cascade do |t|
@@ -33,7 +35,6 @@ ActiveRecord::Schema.define(version: 2019_04_24_075947) do
     t.datetime "updated_at", null: false
     t.string "title"
     t.string "link"
-    t.integer "article_id"
   end
 
   create_table "notices", force: :cascade do |t|
@@ -47,6 +48,8 @@ ActiveRecord::Schema.define(version: 2019_04_24_075947) do
     t.datetime "updated_at", null: false
     t.string "gs_user_handle"
     t.boolean "news_alert", default: false
+    t.bigint "message_id"
+    t.index ["message_id"], name: "index_notices_on_message_id"
   end
 
   create_table "petitions", force: :cascade do |t|
@@ -56,6 +59,8 @@ ActiveRecord::Schema.define(version: 2019_04_24_075947) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "news_alert", default: false
+    t.bigint "message_id"
+    t.index ["message_id"], name: "index_petitions_on_message_id"
   end
 
   create_table "sources", force: :cascade do |t|
@@ -77,6 +82,8 @@ ActiveRecord::Schema.define(version: 2019_04_24_075947) do
     t.datetime "date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "message_id"
+    t.index ["message_id"], name: "index_tweets_on_message_id"
   end
 
 end

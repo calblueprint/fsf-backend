@@ -7,6 +7,7 @@
 # url                 :string
 # text                :string
 class Tweet < ApplicationRecord
+  belongs_to :message, optional: true
   after_update_commit :create_message_object
     
   private

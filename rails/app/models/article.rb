@@ -10,33 +10,38 @@
 #  t.text "description"
 #  t.text "summary"
 class Article < ApplicationRecord
-  has_one :message
+  belongs_to :message, optional: true
   after_create_commit :create_message_if_new_alert
-  after_update_commit :update_message_object
+  before_save :update_message_object
   after_destroy :destroy_message_object
     
   # TODO: need to figure out the linking stuff for deep linking
 
   private
   def create_message_if_new_alert
-    Message.where(article_id: self.id).destroy_all
     if self.news_alert
-      Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)
+      new_message = Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s)
+      self.message = new_message
+      self.save
     end
   end
 
   private
   def update_message_object
-    Message.where(article_id: self.id).destroy_all
+    # Message.where(article_id: self.id).destroy_all
     if self.news_alert
-      Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)  
+      # TODO: multiple messages are created when a message is updated with the news_alert field checked
+      new_message = Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s)
+      self.message = new_message
+      # Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)  
     end
   end
 
   private
   def destroy_message_object
     if self.news_alert
-      Message.where(article_id: self.id).destroy_all
+      self.message.destroy
+      # Message.where(article_id: self.id).destroy_all
     end
   end
 

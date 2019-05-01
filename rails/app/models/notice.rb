@@ -10,6 +10,7 @@
 # content_html                  :string
 # url                 :string
 class Notice < ApplicationRecord
+  belongs_to :message, optional: true
   validates :id, presence:true
   validates :gs_user_id, presence:true
   validates :gs_user_name, presence:true

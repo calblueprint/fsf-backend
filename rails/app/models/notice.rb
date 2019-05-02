@@ -32,7 +32,7 @@ class Notice < ApplicationRecord
     end
     if self.news_alert
       # TODO: multiple messages are created when a message is updated with the news_alert field checked
-      new_message = Message.create(content: self.content_text, title: self.gs_user_name, link: "fsf://fsf/gnu/social/" + self.id.to_s)
+      new_message = Message.create(content: self.content_text, created_at: self.created_at, title: self.gs_user_name, link: "fsf://fsf/gnu/social/" + self.id.to_s)
       self.message = new_message
       # Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)  
     end

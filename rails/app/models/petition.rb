@@ -28,15 +28,14 @@ class Petition < ApplicationRecord
   private
   def update_message_object
     # Message.where(article_id: self.id).destroy_all
+    if self.message
+      self.message.destroy
+    end
     if self.news_alert
       # TODO: multiple messages are created when a message is updated with the news_alert field checked
       new_message = Message.create(content: self.description, title: self.title, link: "fsf://fsf/action/" + self.id.to_s)
       self.message = new_message
       # Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)  
-    else 
-      if self.message
-        self.message.destroy
-      end
     end
   end
 

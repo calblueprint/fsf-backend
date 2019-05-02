@@ -19,7 +19,7 @@ class Petition < ApplicationRecord
   private
   def create_message_if_new_alert
     if self.news_alert
-      new_message = Message.create(content: self.description, title: self.title, link: "fsf://fsf/news/CHANGE_THIS_HERE/" + self.id.to_s)
+      new_message = Message.create(content: self.description, title: self.title, link: "fsf://fsf/action/" + self.id.to_s)
       self.message = new_message
       self.save
     end
@@ -30,7 +30,7 @@ class Petition < ApplicationRecord
     # Message.where(article_id: self.id).destroy_all
     if self.news_alert
       # TODO: multiple messages are created when a message is updated with the news_alert field checked
-      new_message = Message.create(content: self.description, title: self.title, link: "fsf://fsf/news/CHANGE_THIS_HERE/" + self.id.to_s)
+      new_message = Message.create(content: self.description, title: self.title, link: "fsf://fsf/action/" + self.id.to_s)
       self.message = new_message
       # Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)  
     else 

@@ -6,7 +6,9 @@ Rails.application.routes.draw do
       resources :tweets
       resources :petitions
       resources :messages
-      
+
+      # resources :articles, only: [:show]
+
       # message route
       get 'latestMessages', to: 'messages#get_latest_messages'
     end

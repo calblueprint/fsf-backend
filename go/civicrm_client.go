@@ -10,9 +10,6 @@ import (
 	"reflect"
 )
 
-// global variables to be set by users passing in env variables
-var siteKey, adminAPIKey string
-
 /*
 A helper function to query CiviCRM
 @param

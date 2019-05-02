@@ -13,6 +13,7 @@ class Article < ApplicationRecord
   belongs_to :message, optional: true
   after_create_commit :create_message_if_new_alert
   before_save :update_message_object
+  after_save :set_created_at
   after_destroy :destroy_message_object
 
   private
@@ -32,9 +33,16 @@ class Article < ApplicationRecord
     end
     if self.news_alert
       # TODO: multiple messages are created when a message is updated with the news_alert field checked
-      new_message = Message.create(content: self.content, created_at: self.created_at, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s)
+      new_message = Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s)
       self.message = new_message
       # Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)  
+    end
+  end
+
+  private
+  def set_created_at
+    if self.message
+      self.message.created_at = self.created_at
     end
   end
 

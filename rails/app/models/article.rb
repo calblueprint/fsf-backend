@@ -13,7 +13,7 @@ class Article < ApplicationRecord
   belongs_to :message, optional: true
   after_create_commit :create_message_if_new_alert
   before_save :update_message_object
-  after_save :set_created_at
+  # after_update_commit :set_created_at
   after_destroy :destroy_message_object
 
   private
@@ -39,12 +39,12 @@ class Article < ApplicationRecord
     end
   end
 
-  private
-  def set_created_at
-    if self.message
-      self.message.created_at = self.created_at
-    end
-  end
+  # private
+  # def set_created_at
+  #   if self.message
+  #     self.message.created_at = self.pub_date
+  #   end
+  # end
 
   private
   def destroy_message_object

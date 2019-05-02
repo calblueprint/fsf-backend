@@ -14,8 +14,6 @@ class Article < ApplicationRecord
   after_create_commit :create_message_if_new_alert
   before_save :update_message_object
   after_destroy :destroy_message_object
-    
-  # TODO: need to figure out the linking stuff for deep linking
 
   private
   def create_message_if_new_alert

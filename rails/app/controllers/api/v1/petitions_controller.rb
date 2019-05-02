@@ -9,7 +9,7 @@ module Api
 
             def show
                 petition = Petition.find(params[:id])
-                render json: {status: 'SUCCESS', message:'Loaded FSF Petition', data: petitions}, status: :ok
+                render json: {status: 'SUCCESS', message:'Loaded FSF Petition', data: petition}, status: :ok
             end
 
             def create

@@ -32,6 +32,8 @@ class Article < ApplicationRecord
       new_message = Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s)
       self.message = new_message
       # Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)  
+    else 
+      self.message.destroy
     end
   end
 

@@ -7,7 +7,6 @@
 # url                 :string
 # text                :string
 class Tweet < ApplicationRecord
-  validates :id, presence:true
   validates :date, presence:true
   validates :url, presence:true
   validates :text, presence:true

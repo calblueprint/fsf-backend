@@ -83,7 +83,13 @@ func handleRepeatPayment(w http.ResponseWriter, req *http.Request) {
 		writeInternalServerError(w, "transaction not successfully approved")
 		return
 	} else {
-		err := recordTransactionInCiviCRM(ccInfo.Email, decrypt([]byte(ccInfo.ApiKey), siteKey), saleResp.TransID, ccInfo.Amount)
+
+		decryptedKey, err := decrypt(ccInfo.ApiKey, siteKey)
+		if err != nil {
+			writeInternalServerError(w, "Cannot decrypt key properly")
+			return
+		}
+		err = recordTransactionInCiviCRM(ccInfo.Email, decryptedKey, saleResp.TransID, ccInfo.Amount)
 		if err != nil {
 			log.Println(err.Error())
 			writeInternalServerError(w, err.Error())
@@ -223,7 +229,12 @@ func handlePayment(w http.ResponseWriter, req *http.Request) {
 			  	ApiKey string `json:"apikey"`
 				}
 		*/
-		err := recordTransactionInCiviCRM(ccInfo.Email, decrypt([]byte(ccInfo.ApiKey), siteKey), saleResp.TransID, ccInfo.Amount)
+		decryptedKey, err := decrypt(ccInfo.ApiKey, siteKey)
+		if err != nil {
+			writeInternalServerError(w, "Cannot decrypt key properly")
+			return
+		}
+		err = recordTransactionInCiviCRM(ccInfo.Email, decryptedKey, saleResp.TransID, ccInfo.Amount)
 		/*
 			TODO:
 			Prevent scenario of payment made, but transaction recorded wrongly; implement either:
@@ -374,7 +385,13 @@ func handleLogin(w http.ResponseWriter, req *http.Request) {
 		Email string `json:"email"`
 	}
 
-	key.Key = encrypt([]byte(APIKey), siteKey)
+	encryptedKey, err := encrypt(APIKey, siteKey)
+	if err != nil {
+		writeInternalServerError(w, "Cannot decrypt key properly")
+		return
+	}
+
+	key.Key = encryptedKey
 	key.ID = contactId
 	key.Email = id
 
@@ -419,7 +436,13 @@ func getUserInformation(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	userInfo, err := getUserInfo(decrypt([]byte(key.Key), siteKey), key.ID)
+	decryptedKey, err := decrypt(key.Key, siteKey)
+	if err != nil {
+		writeInternalServerError(w, "Cannot decrypt key properly")
+		return
+	}
+
+	userInfo, err := getUserInfo(decryptedKey, key.ID)
 
 	if err != nil {
 		log.Println(err.Error())

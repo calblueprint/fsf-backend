@@ -3,47 +3,66 @@ package main
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/md5"
 	"crypto/rand"
-	"encoding/hex"
+	"crypto/sha256"
+	"encoding/base64"
 	"io"
 )
 
-func createHash(key string) string {
-	hasher := md5.New()
-	hasher.Write([]byte(key))
-	return hex.EncodeToString(hasher.Sum(nil))
+func encodeToString(value []byte) string {
+	return base64.StdEncoding.EncodeToString(value)
 }
 
-func encrypt(data []byte, passphrase string) string {
-	block, _ := aes.NewCipher([]byte(createHash(passphrase)))
+// DecodeString is a simple wrapper for base64 decoding.
+func decodeString(value string) ([]byte, error) {
+	return base64.StdEncoding.DecodeString(value)
+}
+
+func createHash(key string) []byte {
+	hash := sha256.Sum256([]byte(key))
+	return hash[:]
+}
+
+func encrypt(dataToEncode string, passphrase string) (string, error) {
+	block, err := aes.NewCipher(createHash(passphrase))
+	if err != nil {
+		return "", err
+	}
+	data, err := decodeString(dataToEncode)
+	if err != nil {
+		return "", err
+	}
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err.Error())
+		return "", err
 	}
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		panic(err.Error())
+		return "", err
 	}
 	ciphertext := gcm.Seal(nonce, nonce, data, nil)
-	return string(ciphertext)
+	return encodeToString(ciphertext), nil
 }
 
-func decrypt(data []byte, passphrase string) string {
-	key := []byte(createHash(passphrase))
+func decrypt(dataToEncode string, passphrase string) (string, error) {
+	key := createHash(passphrase)
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err.Error())
+		return "", err
+	}
+	data, err := decodeString(dataToEncode)
+	if err != nil {
+		return "", err
 	}
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err.Error())
+		return "", err
 	}
 	nonceSize := gcm.NonceSize()
 	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
 	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
-		panic(err.Error())
+		return "", err
 	}
-	return string(plaintext)
+	return encodeToString(plaintext), nil
 }

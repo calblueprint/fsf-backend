@@ -36,7 +36,7 @@ Petition.create title: "Please Act Now!", description: "Your digital rights are 
 # t.index ["message_id"], name: "index_notices_on_message_id"
 0.upto(NUM_ITEMS) do |i|
     Article.create({
-      title: "#{Faker::Kpop.ii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups}",
+      title: "this is my title",
       link: Faker::Internet.url("fsf.org"),
       pub_date: Faker::Date.backward(29),
       news_alert: false,
@@ -59,15 +59,23 @@ end
 # t.boolean "news_alert", default: false
 # t.bigint "message_id"
 # t.index ["message_id"], name: "index_notices_on_message_id"
+# validates :id, presence:true
+# validates :gs_user_id, presence:true
+# validates :gs_user_name, presence:true
+# validates :gs_user_handle, presence:true
+# validates :published, presence:true
+# validates :content_text, presence:true
+# validates :content_html, presence:true
+# validates :url, presence:true
 0.upto(NUM_ITEMS) do |i|
   Notice.create({
-    gs_user_id: "#{Faker::Kpop.ii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups}",
+    gs_user_id: Faker::Kpop.ii_groups,
     gs_user_name: Faker::Kpop.ii_groups,
+    gs_user_handle: "555",
     published: Faker::Date.backward(29),
     content_text: Faker::Lorem.paragraphs(15),
     content_html: Faker::Lorem.paragraphs(15),
     url: Faker::Internet.url("fsf.org"),
-    gs_user_handle: "#{Faker::Kpop.ii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups} #{Faker::Kpop.iii_groups}",
     news_alert: false
   })
 end

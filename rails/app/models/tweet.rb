@@ -45,7 +45,7 @@ class Tweet < ApplicationRecord
   #   end
   # end
     
-  validates :id, presence:true
+  # validates :id, presence:true
   validates :date, presence:true
   validates :url, presence:true
   validates :text, presence:true

@@ -43,7 +43,7 @@ class Notice < ApplicationRecord
     end
   end
 
-  validates :id, presence:true
+  # validates :id, presence:true
   validates :gs_user_id, presence:true
   validates :gs_user_name, presence:true
   validates :gs_user_handle, presence:true

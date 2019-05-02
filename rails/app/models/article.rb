@@ -35,7 +35,7 @@ class Article < ApplicationRecord
     else 
       if self.message
         self.message.destroy
-      else
+      end
     end
   end
 

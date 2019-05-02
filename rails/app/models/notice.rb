@@ -10,7 +10,6 @@
 # content_html                  :string
 # url                 :string
 class Notice < ApplicationRecord
-  validates :id, presence:true
   validates :gs_user_id, presence:true
   validates :gs_user_name, presence:true
   validates :gs_user_handle, presence:true

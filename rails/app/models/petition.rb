@@ -33,6 +33,10 @@ class Petition < ApplicationRecord
       new_message = Message.create(content: self.description, title: self.title, link: "fsf://fsf/news/CHANGE_THIS_HERE/" + self.id.to_s)
       self.message = new_message
       # Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)  
+    else 
+      if self.message
+        self.message.destroy
+      else
     end
   end
 

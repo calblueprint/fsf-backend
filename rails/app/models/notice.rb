@@ -32,6 +32,10 @@ class Notice < ApplicationRecord
       new_message = Message.create(content: self.content_text, title: self.gs_user_name, link: "fsf://fsf/gnu/social/" + self.id.to_s)
       self.message = new_message
       # Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)  
+    else 
+      if self.message
+        self.message.destroy
+      else
     end
   end
 

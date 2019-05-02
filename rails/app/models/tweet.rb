@@ -34,7 +34,8 @@ class Tweet < ApplicationRecord
   #     new_message = Message.create(content: self.text, title: self.date, link: "fsf://fsf/TWEETS_NOT_USED/" + self.id.to_s)
   #     self.message = new_message
   #     # Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)  
-  #   end
+  #     else 
+  #      self.message.destroy   
   # end
 
   # private

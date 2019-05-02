@@ -36,7 +36,7 @@ Petition.create title: "Please Act Now!", description: "Your digital rights are 
 # t.index ["message_id"], name: "index_notices_on_message_id"
 0.upto(NUM_ITEMS) do |i|
     Article.create({
-      title: "this is my title",
+      title: Faker::Kpop.ii_groups,
       link: Faker::Internet.url("fsf.org"),
       pub_date: Faker::Date.backward(29),
       news_alert: false,

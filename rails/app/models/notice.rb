@@ -26,15 +26,22 @@ class Notice < ApplicationRecord
 
   private
   def update_message_object
-    # Message.where(article_id: self.id).destroy_all
-    if self.message
-      self.message.destroy
-    end
     if self.news_alert
-      # TODO: multiple messages are created when a message is updated with the news_alert field checked
-      new_message = Message.create(content: self.content_text, title: self.gs_user_name, link: "fsf://fsf/gnu/social/" + self.id.to_s)
-      self.message = new_message
-      # Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)  
+      if self.message
+        # check if message contents match the new message we would like to have here, if not, update the message contents
+        if self.message.title != self.gs_user_name
+          m = self.message
+          m.title = self.gs_user_name
+          m.save
+        elsif self.message.content != self.content_text
+          m = self.message
+          m.content = self.content_text
+          m.save
+        end
+      else
+        new_message = Message.create(content: self.content_text, title: self.gs_user_name, link: "fsf://fsf/gnu/social/" + self.id.to_s)
+        self.message = new_message
+      end
     end
   end
 

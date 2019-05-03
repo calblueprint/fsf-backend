@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_03_22_071334) do
+ActiveRecord::Schema.define(version: 2019_04_24_075947) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -25,6 +25,8 @@ ActiveRecord::Schema.define(version: 2019_03_22_071334) do
     t.datetime "updated_at", null: false
     t.text "description"
     t.text "summary"
+    t.bigint "message_id"
+    t.index ["message_id"], name: "index_articles_on_message_id"
   end
 
   create_table "messages", force: :cascade do |t|
@@ -45,6 +47,9 @@ ActiveRecord::Schema.define(version: 2019_03_22_071334) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "gs_user_handle"
+    t.boolean "news_alert", default: false
+    t.bigint "message_id"
+    t.index ["message_id"], name: "index_notices_on_message_id"
   end
 
   create_table "petitions", force: :cascade do |t|
@@ -53,6 +58,9 @@ ActiveRecord::Schema.define(version: 2019_03_22_071334) do
     t.string "link"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "news_alert", default: false
+    t.bigint "message_id"
+    t.index ["message_id"], name: "index_petitions_on_message_id"
   end
 
   create_table "sources", force: :cascade do |t|
@@ -74,6 +82,8 @@ ActiveRecord::Schema.define(version: 2019_03_22_071334) do
     t.datetime "date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "message_id"
+    t.index ["message_id"], name: "index_tweets_on_message_id"
   end
 
 end

@@ -10,11 +10,9 @@
 #  t.text "description"
 #  t.text "summary"
 class Article < ApplicationRecord
-  belongs_to :message, optional: true
+  belongs_to :message, optional: true, dependent: :destroy
   after_create_commit :create_message_if_new_alert
   before_save :update_message_object
-  # after_update_commit :set_created_at
-  after_destroy :destroy_message_object
 
   private
   def create_message_if_new_alert
@@ -43,21 +41,6 @@ class Article < ApplicationRecord
         new_message = Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s)
         self.message = new_message
       end
-    end
-  end
-
-  # private
-  # def set_created_at
-  #   if self.message
-  #     self.message.created_at = self.pub_date
-  #   end
-  # end
-
-  private
-  def destroy_message_object
-    if self.news_alert
-      self.message.destroy
-      # Message.where(article_id: self.id).destroy_all
     end
   end
 

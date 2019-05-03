@@ -11,10 +11,9 @@
 #   t.datetime "updated_at", null: false
 # url                 :string
 class Petition < ApplicationRecord
-  belongs_to :message, optional: true
+  belongs_to :message, optional: true, dependent: :destroy
   after_create_commit :create_message_if_new_alert
   before_save :update_message_object
-  after_destroy :destroy_message_object
 
   private
   def create_message_if_new_alert
@@ -43,14 +42,6 @@ class Petition < ApplicationRecord
         new_message = Message.create(content: self.description, title: self.title, link: "fsf://fsf/action/" + self.id.to_s)
         self.message = new_message
       end
-    end
-  end
-
-  private
-  def destroy_message_object
-    if self.news_alert
-      self.message.destroy
-      # Message.where(article_id: self.id).destroy_all
     end
   end
 

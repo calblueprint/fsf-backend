@@ -35,7 +35,6 @@ class Article < ApplicationRecord
       # TODO: multiple messages are created when a message is updated with the news_alert field checked
       new_message = Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s)
       self.message = new_message
-      # Message.create(content: self.content, title: self.title, link: "fsf://fsf/news/article/" + self.id.to_s, article_id: self.id)  
     end
   end
 

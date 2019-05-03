@@ -1,0 +1,20 @@
+# Generate UML: https://sequencediagram.org/
+
+title Login - Success
+
+Mobile->CAS: Request login token (LT) via login page
+CAS->Mobile: Provide LT
+Mobile->CAS: Send (LT, username, password, service url)
+CAS->Mobile: Provide service token (ST)
+
+Mobile->Go backend: Send ST
+Go backend->CAS: Query with (ST, service url)
+CAS->Go backend: Respond with XML of user info, incl. Drupal username
+
+Go backend->CiviCRM: Get CiviCRM contact ID with Drupal username using admin API key (AKEY)
+CiviCRM->Go backend: Respond with CiviCRM contact ID
+Go backend->CiviCRM: Get contact info using AKEY
+CiviCRM->Go backend: Respond with contact info
+Go backend-->CiviCRM: If contact's api key (CKEY) is not set, set it to a random string with AKEY
+
+Go backend->Mobile: Respond with AES_encrypt(CKEY) and contact info

@@ -1,0 +1,11 @@
+# Generate UML: https://sequencediagram.org/
+
+title CiviCRM Query - Success
+
+Mobile->Go backend: Request + contact username + AES_encrypt(CKEY)
+Go backend->CiviCRM: Get CKEY of the given contact username using AKEY
+CiviCRM->Go backend: CKEY of the specified contact
+Go backend->CiviCRM: Converted CiviCRM Query using AKEY
+CiviCRM->Go backend: Query succeeds
+Go backend->Mobile: Request succeeds
+
